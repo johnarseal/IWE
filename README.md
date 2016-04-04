@@ -1,2 +1,2 @@
-# IWF
+# IWE
 Issue Workflow Explorer
