@@ -1,0 +1,272 @@
+<html>
+<head><script src="js/d3.min.js" charset="utf-8"></script>
+<style>
+.axis path,
+.axis line{
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+.mycir{
+	cursor:pointer;
+}
+</style>
+</head>
+<body style='margin:0px'><!--
+<svg style='margin-left:400px; margin-top:50px' width='600' height='500'>
+<g>
+  <circle cx="100" cy="450" r="40" fill="blue" style="z-index:3"></circle>
+  <text x="100" y="450" text-anchor='middle'>asdd</text>
+  <path d="M 100 420 L 100 300" stroke="red"
+  stroke-width="3" />
+  <path d="M 100,420 Q 130,420 130,350" stroke="red"
+  stroke-width="5" fill="none"/>  
+  <path d="M 100,420 Q 160,420 160,390" stroke="red"
+  stroke-width="3" fill="none"/>
+</g>
+</svg>-->
+
+<script>
+// an example of transition data
+d = {
+		"NEW RESOLVED VERIFIED":{"ts":[891884223,893785023,897785023],"num":22345},
+		"UNCONFIRMED RESOLVED VERIFIED":{"ts":[892084223,894085023,898785023],"num":42345},
+		"UNCONFIRMED ASSIGNED RESOLVED VERIFIED":{"ts":[892184223,894785023,896785023,899785023],"num":12345},
+		"NEW RESOLVED":{"ts":[892984223,894504862],"num":50000},
+		"UNCONFIRMED RESOLVED":{"ts":[893084223,894585023],"num":60000},
+	};
+	
+function parseTree(d){
+	//caculate the time gap
+	for (tranStr in d)
+	{
+		initST = d[tranStr]["ts"][0];
+		d[tranStr]["ts"][0] = 0;
+		for (i = 1; i < d[tranStr]["ts"].length; i++)
+		{
+			d[tranStr]["ts"][i] -= initST + d[tranStr]["ts"][i-1];
+		}
+	}
+
+	//build a tree
+	var nodeId = 0;
+	var rr = {"child":{},"tag":"root",id:nodeId++};
+	var mergeThres = 0.2;
+	for (tranStr in d){
+		tranArr = tranStr.split(" ");
+		curNode = rr;
+		tranAttr = d[tranStr];
+		endInd = tranArr.length - 1;
+		//iterate through a transition str
+		for (i in tranArr){
+			curTran = tranArr[i];
+			// check whether to merge the node
+			// find a node to merge
+			ind = 0;
+			tranStr = curTran;
+			curTran = curTran + ind;
+			if (i > 0) {
+				while(curTran in curNode["child"]) {
+					oldGap = curNode["child"][curTran]["ts"];
+					newGap = tranAttr["ts"][i];
+					gapDiff = Math.abs(oldGap-newGap);
+					// if the gap difference is small, merge
+					if(gapDiff <= oldGap * mergeThres){
+						break;
+					}
+					else{
+						ind++;
+						curTran = tranStr + ind;
+					}
+				}
+			}
+			// merge or not
+			if(curTran in curNode["child"]){
+				curNode = curNode["child"][curTran];
+				// average the ts
+				totalNum = curNode["num"] + tranAttr["num"]
+				curNode["ts"] = parseInt((curNode["num"] * curNode["ts"] + tranAttr["num"] * tranAttr["ts"][i]) / totalNum);
+				curNode["num"] = totalNum;
+			}
+			else{		// a new node
+				curNode["child"][curTran]={"child":{},"tag":tranStr,"id":nodeId++};
+				curNode = curNode["child"][curTran];
+				curNode["num"] = tranAttr["num"];
+				curNode["ts"] = tranAttr["ts"][i];
+			}
+			// if it is an end, add a node
+			if(i == endInd){
+				curNode["child"]["END"] = {"num":tranAttr["num"],"ts":tranAttr["ts"][i]};
+			}
+		}
+	}
+	return rr;
+}
+
+svgAttr = {"width":600,"height":500,"paddingV":20,"paddingH":20};
+
+var svg = d3.select("body")     //选择文档中的body元素
+    .append("svg")          //添加一个svg元素
+    .attr("width", svgAttr.width)       //设定宽度
+    .attr("height", svgAttr.height)
+	.style("margin-left",400)
+	.style("margin-top",50)
+	.style("background-color","#e5e5e5");    //设定高度
+
+r = parseTree(d);
+
+// calculate the depth of the tree
+function findDepth(d){	
+	maxDepth = 0;
+	for (tranStr in d){
+		tranArr = tranStr.split(" ");
+		depth = tranArr.length;
+		if(depth > maxDepth){
+			maxDepth = depth;
+		}
+	}
+	return maxDepth;
+}
+
+treeDepth = findDepth(d);
+
+
+function searchWidth(node){
+	hasChild = false;
+	for(childStr in node["child"]){
+		if (childStr != "END"){
+			hasChild = true;
+			break;
+		}
+	}
+	if(!hasChild){
+		node["maxWidth"] = 1;
+		return 1;
+	}
+	maxWidth = 0;
+	for(childStr in node["child"]){
+		if (childStr != "END"){
+			maxWidth += searchWidth(node["child"][childStr],depth+1);
+		}
+	}
+	node["maxWidth"] = maxWidth;
+	return maxWidth;
+}
+
+searchWidth(r);
+
+
+function buildScale(svgAttr,r,d,tDepth){
+	
+	// the rate between the horizontal gap and the radius
+	innerGapRate = 0.5;
+	// the rate between the line and the radius
+	lineNodeRate = 4;
+	rv = (svgAttr.height - svgAttr.paddingV * 2) / ((lineNodeRate + 2) * tDepth - lineNodeRate);
+	rh = (svgAttr.width - svgAttr.paddingH * 2) / ((innerGapRate + 2) * r.maxWidth - innerGapRate);
+	maxR = Math.min(rv,rh);
+	minR = maxR * 0.4;
+	
+	//build the scale of the radius
+	maxNum = 0;
+	minNum = 9999999;	//this is a assumed biggest number
+	for (tranStr in d){
+		maxNum = Math.max(maxNum,d[tranStr].num);
+		minNum = Math.min(minNum,d[tranStr].num);
+	}
+	crScale = d3.scale.linear()
+		.domain([minNum, maxNum])
+        .range([minR, maxR]);
+	
+	maxTS = 0;
+	for (tranStr in d){
+		for(i in d[tranStr].ts){
+			if (d[tranStr].ts[i] > maxTS){
+				maxTS = d[tranStr].ts[i];
+			}
+		}
+	}
+	maxTsLen = lineNodeRate * maxR;
+	tsScale = d3.scale.linear()
+		.domain([0, maxTS])
+        .range([0, maxTsLen]);
+	
+	treeScale = {"crScale":crScale,"tsScale":tsScale};
+	return treeScale;
+}
+
+treeScale = buildScale(svgAttr,r,d,treeDepth);
+
+
+function drawNode(node,cx,cy,cr){
+	svg.append("circle").attr("cx",cx)
+						.attr("cy",cy)
+						.attr("r",cr)
+						.attr("class","mycir")
+						.text(node.tag);
+	svg.append("text").attr("x",cx)
+						.attr("y",cy)
+						.attr("text-anchor","middle")
+						.attr("fill","white")
+						.text(node.tag);	
+}
+
+function drawTree(node,left,right,lastEdge){
+	//console.log(treeScale.tsScale(50000));
+	//return;
+	
+	var cx,cy,cr;
+	if(node.tag != 'root'){
+		var thisEdge = lastEdge + treeScale.tsScale(node.ts) + treeScale.crScale(node.num) * 2;
+		cx = (left + right) / 2;
+		cy = thisEdge - treeScale.crScale(node.num);
+		cr = treeScale.crScale(node.num);
+		drawNode(node,cx,cy,cr);
+	}
+	else{
+		var thisEdge = lastEdge;
+		cx = cy = -1;
+	}
+	
+	//sort the child, draw the biggest first
+	var totalChildNum = 0;
+	function tranSort(a,b){
+		return b.num - a.num;
+	}
+	var tranSortArr = new Array();
+	for(var childStr in node.child){
+		if(childStr != 'END'){
+			tranSortArr.push({"name":childStr,"num":node.child[childStr].num});
+			totalChildNum += node.child[childStr].num;
+		}
+	}
+	tranSortArr.sort(tranSort);
+	console.log(tranSortArr);
+	
+	//iterate through the children
+	var curLeft = left;
+	var curDist = right-left;
+	for(var ind in tranSortArr){
+		childStr = tranSortArr[ind].name;
+		var distRate = ((node.child[childStr].maxWidth / node.maxWidth) + (node.child[childStr].num / totalChildNum)) / 2;
+		var dist = curDist * distRate;
+		//draw the tree of son
+		drawTree(node.child[childStr],curLeft,curLeft+dist,thisEdge);
+		curLeft = curLeft+dist;
+	}
+}
+
+drawTree(r,svgAttr.paddingH,svgAttr.width - svgAttr.paddingH,svgAttr.paddingV);
+console.log(r);
+
+
+
+
+</script>
+</body>
+</html>
