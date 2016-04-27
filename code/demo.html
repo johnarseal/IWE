@@ -1,6 +1,10 @@
 <html>
 <head><script src="js/d3.min.js" charset="utf-8"></script>
 <style>
+body{
+	font-family:"Helvetica","sans-serif";
+	font-size:13px;
+}
 .axis path,
 .axis line{
     fill: none;
@@ -33,13 +37,21 @@
 
 <script>
 // an example of transition data
-d = {
-		"NEW RESOLVED VERIFIED":{"ts":[891884223,893785023,897785023],"num":22345},
-		"UNCONFIRMED RESOLVED VERIFIED":{"ts":[892084223,894085023,898785023],"num":42345},
-		"UNCONFIRMED ASSIGNED RESOLVED VERIFIED":{"ts":[892184223,894785023,896785023,899785023],"num":12345},
-		"NEW RESOLVED":{"ts":[892984223,894504862],"num":50000},
-		"UNCONFIRMED RESOLVED":{"ts":[893084223,894585023],"num":60000},
-	};
+d = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
+  'ts': [960114565, 961989692, 971563564, 980116902, 985813821]},
+ 'NEW ASSIGNED RESOLVED': {'num': 1277,
+  'ts': [962415032, 971897691, 1011844691]},
+ 'NEW ASSIGNED RESOLVED VERIFIED': {'num': 5608,
+  'ts': [959722930, 961493271, 966717146, 971437573]},
+ 'NEW RESOLVED': {'num': 1506, 'ts': [965705416, 1021116874]},
+ 'NEW RESOLVED VERIFIED': {'num': 10563,
+  'ts': [960227506, 964279287, 968902410]},
+ 'UNCONFIRMED NEW ASSIGNED RESOLVED VERIFIED': {'num': 960,
+  'ts': [963460778, 964149963, 967345129, 973755474, 980765219]},
+ 'UNCONFIRMED NEW RESOLVED VERIFIED': {'num': 2279,
+  'ts': [964684927, 965322058, 971773362, 978675395]},
+ 'UNCONFIRMED RESOLVED VERIFIED': {'num': 6065,
+  'ts': [963700915, 964321820, 968707193]}};
 	
 function parseTree(d){
 	//caculate the time gap
@@ -110,13 +122,15 @@ function parseTree(d){
 
 svgAttr = {"width":600,"height":500,"paddingV":20,"paddingH":20};
 
+var colors = {"canvas":"#FFFFFF","node":"#000000","text":"#7AC5CD","edge":"#36648B"}
+
 var svg = d3.select("body")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", svgAttr.width)       //设定宽度
     .attr("height", svgAttr.height)
 	.style("margin-left",400)
 	.style("margin-top",50)
-	.style("background-color","#e5e5e5");    //设定高度
+	.style("background-color",colors.canvas);    //设定高度
 
 r = parseTree(d);
 
@@ -134,6 +148,14 @@ function findDepth(d){
 }
 
 treeDepth = findDepth(d);
+
+// calculate the depth of the tree
+function findTotalTS(d){	
+	return maxTotalTS;
+}
+
+var maxTotalTS = findTotalTS(d);
+
 
 
 function searchWidth(node){
@@ -162,15 +184,15 @@ searchWidth(r);
 
 
 function buildScale(svgAttr,r,d,tDepth){
+		
+	// a series of rate
+	var innerGapRate = 0.5;
+	var widthLineNodeRate = 0.5
+	var minLineWidth = 4;
+	var maxLineWidth = 10;
 	
-	// the rate between the horizontal gap and the radius
-	innerGapRate = 0.5;
-	// the rate between the line and the radius
-	lineNodeRate = 4;
-	rv = (svgAttr.height - svgAttr.paddingV * 2) / ((lineNodeRate + 2) * tDepth - lineNodeRate);
-	rh = (svgAttr.width - svgAttr.paddingH * 2) / ((innerGapRate + 2) * r.maxWidth - innerGapRate);
-	maxR = Math.min(rv,rh);
-	minR = maxR * 0.4;
+	maxR = (svgAttr.width - svgAttr.paddingH * 2) / ((innerGapRate + 2) * r.maxWidth - innerGapRate);
+	minR = maxR * 0.6;	
 	
 	//build the scale of the radius
 	maxNum = 0;
@@ -183,20 +205,28 @@ function buildScale(svgAttr,r,d,tDepth){
 		.domain([minNum, maxNum])
         .range([minR, maxR]);
 	
-	maxTS = 0;
+	// scale of the width of edge in the tree
+	maxLineWidth = Math.min(maxR * widthLineNodeRate,maxLineWidth);
+	edgeWidthScale = d3.scale.linear()
+		.domain([minNum, maxNum])
+        .range([minLineWidth, maxLineWidth]);
+	
+	// scale of the length of edge in the tree
+	var maxTotalTS = 0;
 	for (tranStr in d){
+		var curTotal = 0;
 		for(i in d[tranStr].ts){
-			if (d[tranStr].ts[i] > maxTS){
-				maxTS = d[tranStr].ts[i];
-			}
+			curTotal += d[tranStr].ts[i] 
+		}
+		if(curTotal > maxTotalTS){
+			maxTotalTS = curTotal;
 		}
 	}
-	maxTsLen = lineNodeRate * maxR;
 	tsScale = d3.scale.linear()
-		.domain([0, maxTS])
-        .range([0, maxTsLen]);
+		.domain([0, maxTotalTS])
+        .range([0, svgAttr.height - svgAttr.paddingV * 2 - (tDepth-1) * maxR - minR]);
 	
-	treeScale = {"crScale":crScale,"tsScale":tsScale};
+	treeScale = {"crScale":crScale,"tsScale":tsScale,"edgeWidthScale":edgeWidthScale};
 	return treeScale;
 }
 
@@ -208,18 +238,48 @@ function drawNode(node,cx,cy,cr){
 						.attr("cy",cy)
 						.attr("r",cr)
 						.attr("class","mycir")
+						.attr("fill",colors.node)
 						.text(node.tag);
 	svg.append("text").attr("x",cx)
 						.attr("y",cy)
 						.attr("text-anchor","middle")
-						.attr("fill","white")
+						.attr("fill",colors.text)
 						.text(node.tag);	
 }
+function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr){
+	var edgeWidth = treeScale.edgeWidthScale(node.num);
+	//draw the edge
+	if(lEdgeX != 0 && lEdgeY != 0){
+		if(Math.abs(lEdgeX - cx) < 1){
+			svg.append("line").attr("x1",lEdgeX)
+						.attr("y1",lEdgeY)
+						.attr("x2",cx)
+						.attr("y2",cy - cr)
+						.style("stroke",colors.edge)
+						.style("stroke-width",edgeWidth);			
+		}
+		else{
+			var curRate = 0.4;
+			var distY = cy - cr - lEdgeY;
+			var turningY = lEdgeY + distY * curRate;
+			var dParam = "M "+ lEdgeX + "," + (lEdgeY - edgeWidth * 0.5) + " Q " + cx + "," + lEdgeY + " " + cx + ","+ turningY;
+			svg.append("path").attr("d",dParam)
+							.attr("fill","none")
+							.style("stroke",colors.edge)
+							.style("stroke-width",edgeWidth);
+			svg.append("line").attr("x1",cx)
+							.attr("y1",turningY)
+							.attr("x2",cx)
+							.attr("y2",cy - cr)
+							.style("stroke",colors.edge)
+							.style("stroke-width",edgeWidth);	
+		}
+	}
+}
 
-function drawTree(node,left,right,lastEdge){
-	//console.log(treeScale.tsScale(50000));
-	//return;
-	
+function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
+		
+	// draw the node
 	var cx,cy,cr;
 	if(node.tag != 'root'){
 		var thisEdge = lastEdge + treeScale.tsScale(node.ts) + treeScale.crScale(node.num) * 2;
@@ -233,20 +293,42 @@ function drawTree(node,left,right,lastEdge){
 		cx = cy = -1;
 	}
 	
+	//draw the edge
+	drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr);
+
 	//sort the child, draw the biggest first
 	var totalChildNum = 0;
 	function tranSort(a,b){
 		return b.num - a.num;
 	}
+	// both sort and find the min ts among the children
 	var tranSortArr = new Array();
+	var minTS = 9999999;
+	var endNum = 0;
 	for(var childStr in node.child){
 		if(childStr != 'END'){
 			tranSortArr.push({"name":childStr,"num":node.child[childStr].num});
 			totalChildNum += node.child[childStr].num;
+			minTS = Math.min(node.child[childStr].ts,minTS);
+		}
+		else{
+			endNum = node.child[childStr].num;
 		}
 	}
+	var edgeX = 0;
+	var edgeY = 0;
+	// draw a part of the edge
+	if (totalChildNum != 0 && node.tag != "root"){
+		edgeX = cx;
+		edgeY = cy + cr + treeScale.tsScale(minTS) * 0.2;
+		svg.append("line").attr("x1",edgeX)
+						.attr("y1",cy + cr)
+						.attr("x2",edgeX)
+						.attr("y2",edgeY)
+						.style("stroke",colors.edge)
+						.style("stroke-width",treeScale.edgeWidthScale(node.num - endNum));
+	}
 	tranSortArr.sort(tranSort);
-	console.log(tranSortArr);
 	
 	//iterate through the children
 	var curLeft = left;
@@ -256,14 +338,13 @@ function drawTree(node,left,right,lastEdge){
 		var distRate = ((node.child[childStr].maxWidth / node.maxWidth) + (node.child[childStr].num / totalChildNum)) / 2;
 		var dist = curDist * distRate;
 		//draw the tree of son
-		drawTree(node.child[childStr],curLeft,curLeft+dist,thisEdge);
+		drawTree(edgeX,edgeY,node.child[childStr],curLeft,curLeft+dist,thisEdge);
 		curLeft = curLeft+dist;
 	}
 }
 
-drawTree(r,svgAttr.paddingH,svgAttr.width - svgAttr.paddingH,svgAttr.paddingV);
+drawTree(0,0,r,svgAttr.paddingH,svgAttr.width - svgAttr.paddingH,svgAttr.paddingV);
 console.log(r);
-
 
 
 
