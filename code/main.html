@@ -31,6 +31,24 @@
 		font-family: sans-serif;
 		font-size: 11px;
 	}
+	.panel-box{
+		width:30%;
+		float:left;
+		position:relative;
+		padding-right:8px;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+	.workflow-box{
+		width:70%;
+		float:left;
+		position:relative;	
+		padding-right:8px;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
    </style>
 </head>
 <body>
@@ -56,26 +74,26 @@
 </nav>
 <div class="container" style='margin-top:50px;width:100%'>
 <div class="row">
-<div class="col-md-8" style="padding:8px"><div class="border-wrap">
-<div class="row">
-<div class="col-md-3">
-<div class="panel panel-default" style="margin-top:5px;">
-   <div class="panel-heading" style="background-color: #EFFEEF;">
-      <h3 class="panel-title">
-         SELECTORS
-      </h3>
-   </div>
-   <div class="panel-body" style="height:500px">
-      面板内容
-   </div>
+<div class="col-md-9" style="padding:8px">
+	<div class="border-wrap"><div class="row" style="margin:0px">
+	<div class="panel-box">
+	<div class="panel panel-default" style="margin-top:5px;">
+	   <div class="panel-heading" style="background-color: #EFFEEF;">
+		  <h3 class="panel-title">
+			 SELECTORS
+		  </h3>
+	   </div>
+	   <div class="panel-body" style="height:500px">
+		  面板内容
+	   </div>
+	</div>
+	</div>
+	<div class="workflow-box">
+	<div style="text-align:center"><h3 style="margin-top:5px">Workflow</h3></div>
+	<div id="svg-wrap"></div>
+	</div>
+	</div></div>
 </div>
-</div>
-<div class="col-md-9" style='padding-left:0px'>
-<div style="text-align:center"><h3 style="margin-top:5px">Workflow</h3></div>
-<div id="svg-wrap"></div>
-</div>
-</div>
-</div></div>
 <div class="col-md-3" style="padding:8px"><div class="border-wrap">ss</div></div>
 </div>
 </div>
@@ -96,7 +114,11 @@ d = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
   'ts': [964684927, 965322058, 971773362, 978675395]},
  'UNCONFIRMED RESOLVED VERIFIED': {'num': 6065,
   'ts': [963700915, 964321820, 968707193]}};
-	
+
+
+
+// the ts of every node represents the 
+// time gap between its parent and itself
 function parseTree(d){
 	//caculate the time gap
 	for (tranStr in d)
@@ -150,7 +172,7 @@ function parseTree(d){
 				curNode["num"] = totalNum;
 			}
 			else{		// a new node
-				curNode["child"][curTran]={"child":{},"tag":tranStr,"id":nodeId++};
+				curNode["child"][curTran]={"child":{},"tag":tranStr,"id":nodeId++,"parentId":curNode.id};
 				curNode = curNode["child"][curTran];
 				curNode["num"] = tranAttr["num"];
 				curNode["ts"] = tranAttr["ts"][i];
@@ -170,11 +192,10 @@ svgAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10};
 
 var colors = {"canvas":"#FFFFFF","node":"#EEEEE0","text":"#000000","edge":"#36648B","nodeBorder":"#EEE0E0"}
 
-var svg = d3.select("#svg-wrap")     //选择文档中的body元素
-    .append("svg")          //添加一个svg元素
-    .attr("width", svgAttr.width)       //设定宽度
+var svg = d3.select("#svg-wrap")  
+    .append("svg")         
+    .attr("width", svgAttr.width)
     .attr("height", svgAttr.height);
-	//.style("background-color",colors.canvas);    //设定高度
 
 r = parseTree(d);
   
@@ -192,14 +213,6 @@ function findDepth(d){
 }
 
 treeDepth = findDepth(d);
-
-// calculate the depth of the tree
-function findTotalTS(d){	
-	return maxTotalTS;
-}
-
-var maxTotalTS = findTotalTS(d);
-
 
 
 function searchWidth(node){
@@ -227,55 +240,89 @@ function searchWidth(node){
 searchWidth(r);
 
 
-function buildScale(svgAttr,r,d,tDepth){
+function buildScale(svgAttr,r){
 		
 	// a series of rate
 	var innerGapRate = 0.5;
-	var widthLineNodeRate = 0.5
-	var minLineWidth = 4;
-	var maxLineWidth = 10;
+	var widthLineNodeRate = 0.8;
+	var minLineWidth = 2;
+	var maxLineWidth = 20;
+	var minLineLen;
 	
-	maxR = (svgAttr.width - svgAttr.paddingH * 2) / ((innerGapRate + 2) * r.maxWidth - innerGapRate);
-	minR = maxR * 0.6;	
-	
-	//build the scale of the radius
-	maxNum = 0;
-	minNum = 9999999;	//this is a assumed biggest number
-	for (tranStr in d){
-		maxNum = Math.max(maxNum,d[tranStr].num);
-		minNum = Math.min(minNum,d[tranStr].num);
+	// to find the maximum and minimal value in the tree
+	// in order to build the scale
+	var maxTS = maxNUM = 0;
+	var minTS = minNUM = 999999999;
+	var tDepth = 0;
+	var nodeIndArr = new Array();
+	function traverseTree(node,lTs,depth){
+		if(node.tag != "root"){
+			if(node.ts != 0){
+				minTS = Math.min(node.ts,minTS);
+			}
+			if(node.num != 0){
+				minNUM = Math.min(minNUM,node.num);
+			}
+			tDepth = Math.max(tDepth,depth);
+			lTs += node.ts;
+			node.totalTS = lTs;
+			nodeIndArr[node.id] = {"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num};
+			maxTS = Math.max(maxTS,lTs);
+			maxNUM = Math.max(maxNUM,node.num);	
+		}
+		for (childStr in node.child){
+			if(childStr != "END"){
+				traverseTree(node.child[childStr],lTs,depth+1);
+			}
+		}
 	}
+	traverseTree(r,0,0);
+	function tsSort(a,b){
+		return a.totalTS - b.totalTS;
+	}
+	nodeArr = nodeIndArr.slice(0);
+	nodeArr.sort(tsSort);
+	
+	// set the maxR according to the width
+	maxR = (svgAttr.width - svgAttr.paddingH * 2) / ((innerGapRate + 2) * r.maxWidth - innerGapRate);
+	// if the maxR is too big, reduce it.
+	if(tDepth * maxR * 2 > (svgAttr.height - svgAttr.paddingV * 2)){
+		maxR = (svgAttr.height - svgAttr.paddingV * 2) * 0.8 / (tDepth * 2);
+	}
+	minR = maxR * 0.5;
+	minLineLen = minR * 0.4;
+	//scale of the radius	
 	crScale = d3.scale.linear()
-		.domain([minNum, maxNum])
+		.domain([minNUM, maxNUM])
         .range([minR, maxR]);
 	
-	// scale of the width of edge in the tree
+	//scale of the width of edge in the tree
 	maxLineWidth = Math.min(maxR * widthLineNodeRate,maxLineWidth);
 	edgeWidthScale = d3.scale.linear()
-		.domain([minNum, maxNum])
+		.domain([minNUM, maxNUM])
         .range([minLineWidth, maxLineWidth]);
 	
-	// scale of the length of edge in the tree
-	var maxTotalTS = 0;
-	for (tranStr in d){
-		var curTotal = 0;
-		for(i in d[tranStr].ts){
-			curTotal += d[tranStr].ts[i] 
+	// directly find the cy of each node
+	var lastTS = 0;
+	var topCY = svgAttr.paddingH + maxR;
+	var lastCY = topCY;
+	var bottomTS = nodeArr[nodeArr.length - 2].totalTS;
+	var bottomCY = svgAttr.height - svgAttr.paddingH - crScale(minR);
+	for (var i = 0; i < nodeArr.length - 1; i++){
+		var idealCY = lastCY + ((nodeArr[i].totalTS - lastTS) / (bottomTS - lastTS)) * (bottomCY - lastCY);
+		var minCY = 0;
+		if(nodeArr[i].parentId != 0){
+			minCY = nodeIndArr[nodeArr[i].parentId].cy + crScale(nodeIndArr[nodeArr[i].parentId].num) + minLineLen + crScale(nodeArr[i].num);		
 		}
-		if(curTotal > maxTotalTS){
-			maxTotalTS = curTotal;
-		}
+		nodeIndArr[nodeArr[i].id].cy = lastCY = Math.max(idealCY,minCY);
+		lastTS = nodeArr[i].totalTS;
 	}
-	tsScale = d3.scale.linear()
-		.domain([0, maxTotalTS])
-        .range([0, svgAttr.height - svgAttr.paddingV * 2 - tDepth * minR * 2]);
-	
-	treeScale = {"crScale":crScale,"tsScale":tsScale,"edgeWidthScale":edgeWidthScale};
+	 
+	treeScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr};
 	return treeScale;
 }
 
-treeScale = buildScale(svgAttr,r,d,treeDepth);
-
+treeScale = buildScale(svgAttr,r);
 
 function drawNode(node,cx,cy,cr){
 	svg.append("circle").attr("cx",cx)
@@ -293,6 +340,8 @@ function drawNode(node,cx,cy,cr){
 						.attr("fill",colors.text)
 						.text(node.tag);
 }
+
+// draw the upper edge
 function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr){
 	var edgeWidth = treeScale.edgeWidthScale(node.num);
 	//draw the edge
@@ -324,21 +373,21 @@ function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr){
 	}
 }
 
-function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
+function drawTree(lEdgeX,lEdgeY,node,left,right){
 		
+	// compute the cx,cy,cr first
 	var cx,cy,cr;
 	if(node.tag != 'root'){
-		var thisEdge = lastEdge + treeScale.tsScale(node.ts) + treeScale.crScale(node.num) * 2;
 		cx = (left + right) / 2;
-		cy = thisEdge - treeScale.crScale(node.num);
+		cy = treeScale.nodeIndArr[node.id].cy;
 		cr = treeScale.crScale(node.num);
 	}
 	else{
-		var thisEdge = lastEdge;
-		cx = cy = -1;
+		//var thisEdge = lastEdge;
+		cx = cy = 0;
 	}
 	
-	//draw the edge
+	//draw the upper edge
 	drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr);
 
 	//sort the child, draw the biggest first
@@ -348,13 +397,17 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
 	}
 	// both sort and find the min ts among the children
 	var tranSortArr = new Array();
-	var minTS = 9999999;
+	var minChildCY = 9999999;
+	var minChildId;
 	var endNum = 0;
 	for(var childStr in node.child){
 		if(childStr != 'END'){
 			tranSortArr.push({"name":childStr,"num":node.child[childStr].num});
 			totalChildNum += node.child[childStr].num;
-			minTS = Math.min(node.child[childStr].ts,minTS);
+			if(treeScale.nodeIndArr[node.child[childStr].id].cy < minChildCY){
+				minChildId = node.child[childStr].id;
+				minChildCY = treeScale.nodeIndArr[node.child[childStr].id].cy;
+			}
 		}
 		else{
 			endNum = node.child[childStr].num;
@@ -362,10 +415,10 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
 	}
 	var edgeX = 0;
 	var edgeY = 0;
-	// draw a part of the edge
+	// draw a part of the bottom edge
 	if (totalChildNum != 0 && node.tag != "root"){
 		edgeX = cx;
-		edgeY = cy + cr + treeScale.tsScale(minTS) * 0.2;
+		edgeY = cy + cr + (minChildCY - treeScale.crScale(treeScale.nodeIndArr[minChildId].num) - cy - cr) * 0.2;
 		svg.append("line").attr("x1",edgeX)
 						.attr("y1",cy + cr)
 						.attr("x2",edgeX)
@@ -383,7 +436,7 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
 		var distRate = ((node.child[childStr].maxWidth / node.maxWidth) + (node.child[childStr].num / totalChildNum)) / 2;
 		var dist = curDist * distRate;
 		//draw the tree of son
-		drawTree(edgeX,edgeY,node.child[childStr],curLeft,curLeft+dist,thisEdge);
+		drawTree(edgeX,edgeY,node.child[childStr],curLeft,curLeft+dist);
 		curLeft = curLeft+dist;
 	}
 	// draw the node
@@ -391,21 +444,20 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,lastEdge){
 		drawNode(node,cx,cy,cr);
 	}
 }
-drawTree(0,0,r,svgAttr.paddingH,svgAttr.width - svgAttr.paddingH,svgAttr.paddingV);
+drawTree(0,0,r,svgAttr.paddingH + 20,svgAttr.width - svgAttr.paddingH);
 
+/*
 var axis = d3.svg.axis()
-     .scale(treeScale.tsScale)      //指定比例尺
-     .orient("left")   //指定刻度的方向
-     .ticks(7);          //指定刻度的数量
+     .scale(treeScale.tsScale)     
+     .orient("left")  
+     .ticks(7);        
 
 svg.append("g")
 	.attr("class","axis")
-	.attr("transform","translate(" + svgAttr.paddingH * 2 + "," + svgAttr.paddingV + ")")
-	.call(axis);
+	.attr("transform","translate(" + svgAttr.paddingH * 10 + "," + svgAttr.paddingV + ")")
+	.call(axis);*/
 
 console.log(r);
-
-
 
 </script>
 </body>
