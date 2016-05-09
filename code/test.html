@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>IWE</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <link href="js/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+   <script src="js/lib/jquery-2.2.3.min.js"></script>
+   <script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="js/lib/d3.min.js" charset="utf-8"></script>
+   <style>
+   .axis path,
+.axis line{
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+</style>
+</head>
+<body>
+<script>
+//数据
+
+var width = 300;  //画布的宽度
+var height = 300;   //画布的高度
+
+var svg = d3.select("body")     //选择文档中的body元素
+    .append("svg")          //添加一个svg元素
+    .attr("width", width)       //设定宽度
+    .attr("height", height);    //设定高度
+/*
+var dataset = [ 2.5 , 2.1 , 1.7 , 1.3 , 0.9 ];
+//定义比例尺
+var linear = d3.scale.linear()
+      .domain([0, d3.max(dataset)])
+      .range([0, 250]);
+
+var axis = d3.svg.axis()
+     .scale(linear)      //指定比例尺
+     .orient("bottom")   //指定刻度的方向
+     .ticks(7);          //指定刻度的数
+var g = svg.append("g")
+  .attr("class","axis")
+  .attr("transform","translate(20,10)")
+	.call(axis);*/
+   
+
+function drawAxis(d,svg,startX,startY){
+var scaleSize = 8;
+var g = svg.append("g")
+	  .attr("class","axis")
+	  .attr("transform","translate("+startX+","+startY+")");	
+	for(i in d){
+		g.append("line")
+		.attr("y1",d[i].scale)
+		.attr("x2",scaleSize)
+		.attr("y2",d[i].scale);
+		g.append("text")
+		.attr("y",d[i].scale)
+		.attr("x",scaleSize+2)
+		.attr("dy",".4em")
+		.style("text-anchor", "left")
+		.text(d[i].text);
+	}
+	g.append("line")
+		.attr("x2",0)
+		.attr("y2",d[d.length-1].scale);
+}
+d = [{"scale":0,"text":0},{"scale":80,"text":10},{"scale":200,"text":200000}];
+drawAxis(d,svg,20,10);
+
+</script>
+</body>
+</html>
