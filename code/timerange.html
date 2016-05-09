@@ -1,0 +1,48 @@
+<html>
+<head>
+<script type="text/javascript" src="https://code.highcharts.com/stock/highstock.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/stock/highcharts-more.js"></script>
+<script type="text/javascript" src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+<div id="container" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div>
+<script>
+$(function () {
+    $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=range.json&callback=?', function (data) {
+
+        $('#container').highcharts('StockChart', {
+
+            chart: {
+                type: 'arearange'
+            },
+
+            rangeSelector: {
+                allButtonsEnabled: true,
+                selected: 2
+            },
+
+            title: {
+                text: 'Temperature variation by day'
+            },
+
+            subtitle: {
+                text: 'Demo of all buttons enabled. Even though "YTD" and "1y" don\'t apply since we\'re <br>only showing values within one year, they are enabled to allow dynamic interaction'
+            },
+
+            tooltip: {
+                valueSuffix: '°C'
+            },
+
+            series: [{
+                name: 'Temperatures',
+                data: data
+            }]
+
+        });
+    });
+
+});
+</script>
+</body>
+</html>
