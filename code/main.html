@@ -308,7 +308,8 @@ function buildScale(svgAttr,r){
 	var lastCY = topCY;
 	var bottomTS = nodeArr[nodeArr.length - 2].totalTS;
 	var bottomCY = svgAttr.height - svgAttr.paddingH - crScale(minR);
-	for (var i = 0; i < nodeArr.length - 1; i++){
+	var nodeNUM = nodeArr.length - 1;
+	for (var i = 0; i < nodeNUM; i++){
 		var idealCY = lastCY + ((nodeArr[i].totalTS - lastTS) / (bottomTS - lastTS)) * (bottomCY - lastCY);
 		var minCY = 0;
 		if(nodeArr[i].parentId != 0){
@@ -317,8 +318,18 @@ function buildScale(svgAttr,r){
 		nodeIndArr[nodeArr[i].id].cy = lastCY = Math.max(idealCY,minCY);
 		lastTS = nodeArr[i].totalTS;
 	}
-	 
-	treeScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr};
+		
+	// prepare the data for drawing the axis
+	var axisD = new Array();
+	var scaleInd = [0,parseInt(nodeNUM / 2), nodeNUM-1];
+	for (var i in scaleInd){
+		var nodeInfo = nodeIndArr[nodeArr[scaleInd[i]].id];
+		var oneScale = {"scale":nodeInfo.cy,"text":nodeInfo.totalTS};
+		axisD.push(oneScale);
+	}
+
+ 
+	treeScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr,"axisD":axisD};
 	return treeScale;
 }
 
@@ -446,18 +457,40 @@ function drawTree(lEdgeX,lEdgeY,node,left,right){
 }
 drawTree(0,0,r,svgAttr.paddingH + 20,svgAttr.width - svgAttr.paddingH);
 
-/*
-var axis = d3.svg.axis()
-     .scale(treeScale.tsScale)     
-     .orient("left")  
-     .ticks(7);        
+function drawAxis(d,svg,startX,startY,title=false){
+var scaleSize = 8;
+var g = svg.append("g")
+	  .attr("class","axis")
+	  .attr("transform","translate("+startX+","+startY+")");	
+	for(i in d){
+		g.append("line")
+		.attr("y1",d[i].scale)
+		.attr("x2",scaleSize)
+		.attr("y2",d[i].scale);
+		g.append("text")
+		.attr("y",d[i].scale)
+		.attr("x",scaleSize+2)
+		.attr("dy",".4em")
+		.style("text-anchor", "left")
+		.text(d[i].text);
+	}
+	g.append("line")
+		.attr("x1",0)
+		.attr("y1",d[0].scale)
+		.attr("x2",0)
+		.attr("y2",d[d.length-1].scale);
+	//draw the title of the axis
+	if(title != false){
+		g.append("text")
+			.attr("x",-5)
+			.attr("y",d[0].scale-5)
+			.style("font-size","14px")
+			.text(title);
+	}
+}
+drawAxis(treeScale.axisD,svg,20,0,"Time");
 
-svg.append("g")
-	.attr("class","axis")
-	.attr("transform","translate(" + svgAttr.paddingH * 10 + "," + svgAttr.paddingV + ")")
-	.call(axis);*/
 
-console.log(r);
 
 </script>
 </body>
