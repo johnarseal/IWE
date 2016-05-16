@@ -1,49 +1,37 @@
 <html>
 <head>
-<script type="text/javascript" src="js/lib/jquery-2.2.3.min.js"></script>
-<script type="text/javascript" src="js/lib/Highstock-4.2.5/js/highstock.js"></script>
+<style type="text/css">
+*{margin:0;padding:0;}
+#menu{position:absolute;width:150px;visibility:hidden;border:1px solid #666;border-bottom-width:0;}
+#menu li{list-style:none;text-indent:1em;}
+#menu li a{display:block;height:30px;line-height:30px;border-bottom:1px solid #666;text-decoration:none;color:#666;font:12px/30px tahoma;}
+#menu li a:hover{background:#eee;color:black;}
+</style>
 </head>
 <body>
-<div style="width:350px">
-<div id="container" style="min-width:290px; height: 400px; margin: 0 auto"></div>
+<div id="menu">
+    <ul>
+        <li><a href="#">contextmenuitem 1</a></li>
+        <li><a href="#">contextmenuitem 2</a></li>
+        <li><a href="#">contextmenuitem 3</a></li>
+        <li><a href="#">contextmenuitem 4</a></li>
+        <li><a href="#">contextmenuitem 5</a></li>
+        <li><a href="#">contextmenuitem 6</a></li>
+    </ul>
 </div>
+<script type="text/javascript">
+document.oncontextmenu = function(e){
+ if(window.event) e = window.event;
+ var mymenu = document.getElementById("menu");
+ mymenu.style.visibility = "visible";
+ mymenu.style.left = e.clientX + 5 +"px";
+ mymenu.style.top = e.clientY + 5 + "px";
+ return false;
+}
+document.onclick = function(){
+ var mymenu = document.getElementById("menu");
+ mymenu.style.visibility = "hidden"; 
+}
+</script>
 </body>
 </html>
-<script>
-data = [[1147651200000,67.79],
-[1147737600000,64.98],
-[1147824000000,65.26],
-[1147910400000,63.18],
-[1147996800000,64.51],
-[1148256000000,63.38],
-[1148342400000,63.15],
-[1148428800000,63.34],
-[1148515200000,64.33],
-[1148601600000,63.55],
-[1148947200000,61.22],
-[1149033600000,59.77],
-[1150033600000,59.77],
-[1151033600000,59.77],
-[1152033600000,59.77],
-[1153033600000,59.77],
-[1154033600000,59.77],
-[1155033600000,59.77],
-[1156033600000,59.77],
-];
-$(function () {
-        // Create the chart
-        $('#container').highcharts('StockChart', {
-			
-            rangeSelector : {
-                selected : 1
-            },
-			credits: {
-					  enabled:false
-			},
-            series : [{
-                name : 'AAPL',
-                data : data
-            }]
-        });
-});
-</script>

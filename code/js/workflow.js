@@ -11,7 +11,9 @@ function parseTree(d){
 			d[tranStr]["ts"][i] -= initST + d[tranStr]["ts"][i-1];
 		}
 	}
-
+	var tagDict = {
+	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO"
+	}
 	//build a tree
 	var nodeId = 0;
 	var rr = {"child":{},"tag":"root",id:nodeId++};
@@ -53,7 +55,7 @@ function parseTree(d){
 				curNode["num"] = totalNum;
 			}
 			else{		// a new node
-				curNode["child"][curTran]={"child":{},"tag":tranStr,"id":nodeId++,"parentId":curNode.id};
+				curNode["child"][curTran]={"child":{},"tag":tagDict[tranStr],"id":nodeId++,"parentId":curNode.id};
 				curNode = curNode["child"][curTran];
 				curNode["num"] = tranAttr["num"];
 				curNode["ts"] = tranAttr["ts"][i];
@@ -109,6 +111,7 @@ function buildScale(svgAttr,r){
 	var minTS = minNUM = 999999999;
 	var tDepth = 0;
 	var nodeIndArr = new Array();
+	nodeIndArr[0] = {"child":[],"id":0,"totalTS":999999999};
 	function traverseTree(node,lTs,depth){
 		if(node.tag != "root"){
 			if(node.ts != 0){
@@ -120,7 +123,15 @@ function buildScale(svgAttr,r){
 			tDepth = Math.max(tDepth,depth);
 			lTs += node.ts;
 			node.totalTS = lTs;
-			nodeIndArr[node.id] = {"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num};
+			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num};
+			if(node.parentId==0){
+				nodeIndArr[0].child.push(node.id);
+			}
+			for (childStr in node.child){
+				if(childStr != "END"){
+					nodeIndArr[node.id]["child"].push(node.child[childStr].id);
+				}
+			}			
 			maxTS = Math.max(maxTS,lTs);
 			maxNUM = Math.max(maxNUM,node.num);	
 		}
@@ -194,16 +205,22 @@ function drawNode(node,cx,cy,cr,svg,svgAttr){
 						.attr("cy",cy)
 						.attr("r",cr)
 						.attr("class","mycir")
-						.attr("fill",svgAttr.colors.node)
+						.attr("fill",svgAttr.colors.node[node.tag])
 						.attr("stroke",svgAttr.colors.nodeBorder)
 						.attr("stroke-opacity",0.8)
-						.attr("stroke-width",5);
+						.attr("stroke-width",5)
+						.attr("class","nodeTrigger")
+						.attr("id",node.id+"-cir");
 						
 	svg.append("text").attr("x",cx)
 						.attr("y",cy)
 						.attr("text-anchor","middle")
 						.attr("fill",svgAttr.colors.text)
-						.text(node.tag);
+						.attr("dy",".25em")
+						.text(node.tag)
+						.attr("id",node.id+"-cirtxt")
+						.attr("class","nodeTrigger")
+						.style("cursor","default");
 }
 
 
@@ -216,6 +233,7 @@ function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr,edgeWidth,svg,svgAttr){
 						.attr("y1",lEdgeY)
 						.attr("x2",cx)
 						.attr("y2",cy - cr)
+						.attr("id",node.id+"-upline")
 						.style("stroke",svgAttr.colors.edge)
 						.style("stroke-width",edgeWidth);			
 		}
@@ -226,12 +244,14 @@ function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr,edgeWidth,svg,svgAttr){
 			var dParam = "M "+ lEdgeX + "," + (lEdgeY - edgeWidth * 0.5) + " Q " + cx + "," + lEdgeY + " " + cx + ","+ turningY;
 			svg.append("path").attr("d",dParam)
 							.attr("fill","none")
+							.attr("id",node.id+"-uppath")
 							.style("stroke",svgAttr.colors.edge)
 							.style("stroke-width",edgeWidth);
 			svg.append("line").attr("x1",cx)
 							.attr("y1",turningY)
 							.attr("x2",cx)
 							.attr("y2",cy - cr)
+							.attr("id",node.id+"-upline")
 							.style("stroke",svgAttr.colors.edge)
 							.style("stroke-width",edgeWidth);	
 		}
@@ -290,6 +310,7 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr){
 						.attr("y1",cy + cr)
 						.attr("x2",edgeX)
 						.attr("y2",edgeY)
+						.attr("id",node.id+"-btmedge")
 						.style("stroke",svgAttr.colors.edge)
 						.style("stroke-width",treeScale.edgeWidthScale(node.num - endNum));
 	}
@@ -361,6 +382,76 @@ function drawWorkFlow(d,svgAttr,svgId){
 	drawTree(0,0,r,svgAttr.paddingH + svgAttr.axisWidth,svgAttr.width - svgAttr.paddingH,scale,svg,svgAttr);
 	
 	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time");
+	
+	var activeArr = new Array();
+	activeChildren(0);
+	var lastSelNodeId;
+	function recoverChildren(){
+		while(activeArr.length != 0){
+			var id = activeArr.shift();
+			$("#"+id+"-cir")
+				.attr("stroke",svgAttr.colors.nodeBorder);
+			$("#"+id+"-cir")
+				.css("cursor","default");
+			$("#"+id+"-cirtxt")
+				.css("cursor","default");
+		}		
+	}
+	function activeChildren(nodeId){
+		//turn its child to active node
+		for(var i in scale.nodeIndArr[nodeId].child){
+			var childId = scale.nodeIndArr[nodeId].child[i];
+			activeArr.push(childId);
+			$("#"+childId+"-cir")
+				.attr("stroke",svgAttr.colors.activeBorder);
+			$("#"+childId+"-cir")
+				.css("cursor","pointer");
+			$("#"+childId+"-cirtxt")
+				.css("cursor","pointer");
+			}
+	}
+	
+	$(".nodeTrigger").mousedown(function(event){
+		if(event.button==0){
+			var nodeId = parseInt($(this).attr("id"));
+			if($.inArray(nodeId, activeArr) < 0){
+				return;
+			}
+			//turn the active node color back to normal
+			recoverChildren();
+			//turn this node to the selected color
+			lastSelNodeId = nodeId;
+			$("#"+lastSelNodeId+"-cir")
+				.attr("stroke",svgAttr.colors.selectedBorder);
+			if(scale.nodeIndArr[nodeId].parentId != 0){
+				$("#"+scale.nodeIndArr[nodeId].parentId+"-btmedge")
+					.css("stroke",svgAttr.colors.selectedBorder);
+				$("#"+nodeId+"-uppath")
+					.css("stroke",svgAttr.colors.selectedBorder);
+				$("#"+nodeId+"-upline")
+					.css("stroke",svgAttr.colors.selectedBorder);
+			}
+			//turn its child to active node
+			activeChildren(lastSelNodeId);
+		}
+		else if(event.button==2 && lastSelNodeId == parseInt($(this).attr("id"))){
+			//turn the active node color back to normal
+			recoverChildren();
+			//turn this node to the selected color
+			var nodeId = parseInt($(this).attr("id"));
+			lastSelNodeId = scale.nodeIndArr[nodeId].parentId;
+			if(scale.nodeIndArr[nodeId].parentId != 0){
+				$("#"+scale.nodeIndArr[nodeId].parentId+"-btmedge")
+					.css("stroke",svgAttr.colors.edge);
+				$("#"+nodeId+"-uppath")
+					.css("stroke",svgAttr.colors.edge);
+				$("#"+nodeId+"-upline")
+					.css("stroke",svgAttr.colors.edge);
+			}
+			//turn its child to active node
+			activeChildren(lastSelNodeId);
+		}
+	});
 }
 
 

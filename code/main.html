@@ -51,6 +51,7 @@
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
+		filter:glow(color=red,strength=10) 
 	}
 	#timeTotalSel{
 		margin-bottom:5px;
@@ -59,19 +60,47 @@
 	.selector-wrap{
 		border:2px dotted #BBBBBB;
 		border-radius:5px;
+		margin-bottom:15px;
+		margin-top:5px;
 	}
 	.sel-header{
 		float:left;
-		width:90%;
 		position:relative;
 		padding-left:10px;
 		padding-top:5px;
 		font-size:16px
 	}
-	.sel-box{
-		float:left;
-		width:10%;
+	.sel-btn-wrap{
+		width:100%;
 		position:relative;
+		text-align:right;
+	}
+	.option{
+		width:150px;		
+	}
+	.sel-inner-wrap{
+		padding:5px;
+		margin-left:0px;
+		margin-right:0px;
+	}
+	.sel-btn-img{
+	 width:20px;
+	 margin-left:5px;
+	 cursor:pointer;
+	}
+	.sel-hdr{
+	font-size:16px;
+	padding-left:5px;
+	}
+	.tick-wrap{
+		display:none;
+		position:absolute;
+		z-index:2;
+		width:100%;
+		text-align:center;
+	}
+	.tick-img{
+		cursor:pointer;
 	}
    </style>
 </head>
@@ -108,19 +137,32 @@
 		  </h3>
 	   </div>
 	   <div class="panel-body" style="padding:5px;height:500px">
-		  <div class="selector-wrap" id="timeTotalSel">
-			<div class="row" style="margin:0px;box-sizing: border-box;">
-				<div class="sel-header">Created Bugs Over Time</div>
-				<div class="sel-box"><img style="width:20px" src="img/accept_approve_comfirm_ok_tick.png"/></div>
+			<div class="selector-wrap">
+				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
+				<div class="sel-inner-wrap row" style="margin:0px">
+					<div class="sel-hdr col-md-3">Products</div><div class="col-md-7"><select class="option"></select></div><div class="col-md-2"><img class='cancel-img sel-btn-img' src="img/cancel2.png"/></div>
+				</div>
 			</div>
-			<div id="timeTotalChart"></div>
-		  </div>
+			<div class="selector-wrap">
+				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
+				<div class="sel-inner-wrap row" style="margin:0px">
+					<div class="sel-hdr col-md-3">Resolution</div><div class="col-md-7"><select class="option"></select></div><div class="col-md-2"><img class='cancel-img sel-btn-img' src="img/cancel2.png"/></div>
+				</div>
+			</div>
+			<div class="selector-wrap" id="timeTotalSel">
+				<div class="row" style="margin:0px;box-sizing: border-box;">
+				<div class="sel-header">Created Bugs Over Time</div>
+				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="img/refresh.png"/><img style="width:18px" class="sel-btn-img" src="img/cancel2.png"/></div>
+				</div>
+				<div id="timeTotalChart"></div>
+			</div>
 	   </div>
+
 	</div>
 	</div>
 	<div class="workflow-box">
 	<div style="text-align:center"><h3 style="margin-top:5px">Workflow</h3></div>
-	<div id="svg-wrap"></div>
+	<div id="svg-wrap" oncontextmenu="return false;"></div>
 	</div>
 	</div></div>
 </div>
@@ -170,7 +212,7 @@ var timeTotalData = [[1147651200000,67.79],
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":"#EEEEE0","text":"#000000","edge":"#36648B","nodeBorder":"#EEE0E0"}
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFF68F","UNC":"#FFE4B5","ASS":"#CDBE70","RES":"#009ACD","VER":"#9400D3"},"text":"#000000","edge":"#36648B","nodeBorder":"#EEE0E0","selectedBorder":"#90EE90","activeBorder":"#8DEEEE"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
@@ -181,6 +223,20 @@ $("#timeTotalChart").css("height",height + "px");
 
 initTimeTotal("#timeTotalChart",timeTotalData);
 
+$(".cancel-img").click(function(){
+	$(this).parents(".sel-inner-wrap").css("opacity",0.5);
+	$(this).parents(".selector-wrap").children(".tick-wrap").show();
+});
+$(".tick-img").mouseover(function(){
+    $(this).parents(".selector-wrap").css("border-color","#000");
+});
+$(".tick-img").mouseout(function(){
+    $(this).parents(".selector-wrap").css("border-color","#BBBBBB");
+});
+$(".tick-img").click(function(){
+	$(this).parents(".selector-wrap").children(".sel-inner-wrap").css("opacity",1);
+	$(this).parents(".tick-wrap").hide();
+});
 
 </script>
 </body>
