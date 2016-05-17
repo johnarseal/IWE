@@ -8,8 +8,10 @@
 	<script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="js/lib/d3.min.js"></script>
 	<script type="text/javascript" src="js/lib/Highstock-4.2.5/js/highstock.js"></script>
+	<script type="text/javascript" src="js/lib/Highstock-4.2.5/js/highcharts-more.js"></script>
 	<script src="js/workflow.js"></script>
 	<script src="js/selectors.js"></script>
+	<script src="js/impact.js"></script>
    <style>
    .border-wrap{
 	height:500px
@@ -102,6 +104,17 @@
 	.tick-img{
 		cursor:pointer;
 	}
+	.my-btn{
+	padding:3px 6px;
+	margin-right:3px;
+	}
+	#res-rate-wrap{
+		margin-left:-10px;
+		height:300px;
+	}
+	.impact-box{
+		padding-top:8px;
+	}
    </style>
 </head>
 <body>
@@ -127,7 +140,7 @@
 </nav>
 <div class="container" style='margin-top:50px;width:100%'>
 <div class="row">
-<div class="col-md-9" style="padding:8px">
+<div class="col-md-9" style="padding:8px 0px">
 	<div class="border-wrap"><div class="row" style="margin:0px">
 	<div class="panel-box">
 	<div class="panel panel-default" style="margin-top:5px;">
@@ -161,12 +174,26 @@
 	</div>
 	</div>
 	<div class="workflow-box">
-	<div style="text-align:center"><h3 style="margin-top:5px">Workflow</h3></div>
+	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin-top:5px">Workflow</h3></div><div style="padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
 	<div id="svg-wrap" oncontextmenu="return false;"></div>
 	</div>
 	</div></div>
 </div>
-<div class="col-md-3" style="padding:8px"><div class="border-wrap">ss</div></div>
+<div class="col-md-3" style="padding:8px 2px">
+<div class="border-wrap">
+	<div class='impact-box'>
+		<div class="row" style="margin:0px">
+			<div style="text-align:right" class="col-md-5">
+				<h4 style="margin-top:5px">Resolution</h4>
+			</div>
+			<div style="text-align:right" class="col-md-7">
+				<button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button>
+			</div>
+		</div>
+		<div id='res-rate-wrap'></div>
+	</div>
+</div>
+</div>
 </div>
 </div>
 <script>
@@ -212,7 +239,7 @@ var timeTotalData = [[1147651200000,67.79],
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFF68F","UNC":"#FFE4B5","ASS":"#CDBE70","RES":"#009ACD","VER":"#9400D3"},"text":"#000000","edge":"#36648B","nodeBorder":"#EEE0E0","selectedBorder":"#90EE90","activeBorder":"#8DEEEE"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00CD00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
@@ -237,7 +264,7 @@ $(".tick-img").click(function(){
 	$(this).parents(".selector-wrap").children(".sel-inner-wrap").css("opacity",1);
 	$(this).parents(".tick-wrap").hide();
 });
-
+drawResRate(0)
 </script>
 </body>
 </html>

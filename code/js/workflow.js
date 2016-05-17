@@ -207,8 +207,8 @@ function drawNode(node,cx,cy,cr,svg,svgAttr){
 						.attr("class","mycir")
 						.attr("fill",svgAttr.colors.node[node.tag])
 						.attr("stroke",svgAttr.colors.nodeBorder)
-						.attr("stroke-opacity",0.8)
-						.attr("stroke-width",5)
+						//.attr("stroke-opacity",0.8)
+						.attr("stroke-width",6)
 						.attr("class","nodeTrigger")
 						.attr("id",node.id+"-cir");
 						
@@ -384,7 +384,6 @@ function drawWorkFlow(d,svgAttr,svgId){
 	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time");
 	
 	var activeArr = new Array();
-	activeChildren(0);
 	var lastSelNodeId;
 	function recoverChildren(){
 		while(activeArr.length != 0){
@@ -395,7 +394,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 				.css("cursor","default");
 			$("#"+id+"-cirtxt")
 				.css("cursor","default");
-		}		
+		}	
 	}
 	function activeChildren(nodeId){
 		//turn its child to active node
@@ -410,7 +409,23 @@ function drawWorkFlow(d,svgAttr,svgId){
 				.css("cursor","pointer");
 			}
 	}
-	
+	function recoverTree(){
+		for(var id = 1; id < scale.nodeIndArr.length; id++){
+			$("#"+id+"-cir")
+				.attr("stroke",svgAttr.colors.nodeBorder);
+			$("#"+id+"-cir")
+				.css("cursor","default");
+			$("#"+id+"-cirtxt")
+				.css("cursor","default");
+			$("#"+id+"-btmedge")
+				.css("stroke",svgAttr.colors.edge);
+			$("#"+id+"-uppath")
+				.css("stroke",svgAttr.colors.edge);
+			$("#"+id+"-upline")
+				.css("stroke",svgAttr.colors.edge);				
+		}
+		activeArr = new Array();
+	}
 	$(".nodeTrigger").mousedown(function(event){
 		if(event.button==0){
 			var nodeId = parseInt($(this).attr("id"));
@@ -451,6 +466,13 @@ function drawWorkFlow(d,svgAttr,svgId){
 			//turn its child to active node
 			activeChildren(lastSelNodeId);
 		}
+	});
+	
+	$("#wf-sel").click(function(){
+		activeChildren(0);
+	});
+	$("#wf-cancel").click(function(){
+		recoverTree();
 	});
 }
 
