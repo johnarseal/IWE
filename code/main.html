@@ -124,6 +124,9 @@
 		padding:0px;
 		text-align:right
 	}
+	.sel-selection{
+		text-align:right
+	}
    </style>
 </head>
 <body>
@@ -162,19 +165,19 @@
 			<div class="selector-wrap">
 				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-3">Products</div><div class="col-md-7"><select class="option"></select></div><div class="col-md-2"><img class='cancel-img sel-btn-img' src="img/cancel2.png"/></div>
+					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select class="option"></select></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
 				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-3">Resolution</div><div class="col-md-7"><select class="option"></select></div><div class="col-md-2"><img class='cancel-img sel-btn-img' src="img/cancel2.png"/></div>
+					<div class="sel-hdr col-md-4">Resolution</div><div class="sel-selection col-md-8"><select class="option"></select></div>
 				</div>
 			</div>
 			<div class="selector-wrap" id="timeTotalSel">
 				<div class="row" style="margin:0px;box-sizing: border-box;">
 				<div class="sel-header">Created Bugs Over Time</div>
-				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="img/refresh.png"/><img style="width:18px" class="sel-btn-img" src="img/cancel2.png"/></div>
+				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="img/refresh.png"/></div>
 				</div>
 				<div id="timeTotalChart"></div>
 			</div>
