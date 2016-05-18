@@ -3,16 +3,17 @@
 <head>
 	<title>IWE</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link href="js/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<script src="js/lib/jquery-2.2.3.min.js"></script>
-	<script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/lib/d3.min.js"></script>
-	<script type="text/javascript" src="js/lib/Highstock-4.2.5/js/highstock.js"></script>
-	<script type="text/javascript" src="js/lib/Highstock-4.2.5/js/highcharts-more.js"></script>
-	<script src="js/workflow.js"></script>
-	<script src="js/selectors.js"></script>
-	<script src="js/impact.js"></script>
+	<link href="{{url_for('static', filename='js/lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+	<script src="{{url_for('static', filename='js/lib/jquery-2.2.3.min.js')}}"></script>
+	<script src="{{url_for('static', filename='js/lib/bootstrap/js/bootstrap.min.js')}}"></script>
+	<script src="{{url_for('static', filename='js/lib/d3.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/lib/Highstock-4.2.5/js/highstock.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/lib/Highstock-4.2.5/js/highcharts-more.js')}}"></script>
+	<script src="{{url_for('static', filename='js/workflow.js')}}"></script>
+	<script src="{{url_for('static', filename='js/selectors.js')}}"></script>
+	<script src="{{url_for('static', filename='js/impact.js')}}"></script>
    <style>
+   {% block css %}
    .border-wrap{
 	
    }
@@ -127,6 +128,7 @@
 	.sel-selection{
 		text-align:right
 	}
+	{% endblock %}
    </style>
 </head>
 <body>
@@ -163,13 +165,11 @@
 	   </div>
 	   <div class="panel-body" style="padding:5px;height:500px">
 			<div class="selector-wrap">
-				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
 				<div class="sel-inner-wrap row" style="margin:0px">
 					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select class="option"></select></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
-				<div class="tick-wrap"><img class="tick-img" src="img/tick1.png" /></div>
 				<div class="sel-inner-wrap row" style="margin:0px">
 					<div class="sel-hdr col-md-4">Resolution</div><div class="sel-selection col-md-8"><select class="option"></select></div>
 				</div>
@@ -177,7 +177,7 @@
 			<div class="selector-wrap" id="timeTotalSel">
 				<div class="row" style="margin:0px;box-sizing: border-box;">
 				<div class="sel-header">Created Bugs Over Time</div>
-				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="img/refresh.png"/></div>
+				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
 				</div>
 				<div id="timeTotalChart"></div>
 			</div>
@@ -219,6 +219,7 @@
 </div>
 </div>
 </div>
+{% block jsblock %}
 <script>
 // an example of transition data
 var workFlowData = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
@@ -351,5 +352,6 @@ $('#fix-time-wrap').highcharts({
         }]
 });
 </script>
+{% endblock %}
 </body>
 </html>
