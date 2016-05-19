@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>IWE</title>
+	<title>Issue Workflow Explorer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link href="{{url_for('static', filename='js/lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 	<script src="{{url_for('static', filename='js/lib/jquery-2.2.3.min.js')}}"></script>
 	<script src="{{url_for('static', filename='js/lib/bootstrap/js/bootstrap.min.js')}}"></script>
 	<script src="{{url_for('static', filename='js/lib/d3.min.js')}}"></script>
@@ -25,6 +26,7 @@
 	border-radius: 4px;
 	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
 	box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+	margin:5px;
    }
 	.axis path,
 	.axis line{
@@ -50,11 +52,10 @@
 		width:69%;
 		float:left;
 		position:relative;	
-		padding-right:8px;
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
-		filter:glow(color=red,strength=10) 
+		padding:5px 6px;		
 	}
 	#timeTotalSel{
 		margin-bottom:5px;
@@ -78,7 +79,7 @@
 		position:relative;
 		text-align:right;
 	}
-	.option{
+	.sel-option{
 		width:150px;		
 	}
 	.sel-inner-wrap{
@@ -95,23 +96,13 @@
 	font-size:16px;
 	padding-left:5px;
 	}
-	.tick-wrap{
-		display:none;
-		position:absolute;
-		z-index:2;
-		width:100%;
-		text-align:center;
-	}
-	.tick-img{
-		cursor:pointer;
-	}
 	.my-btn{
 	padding:3px 6px;
 	margin-right:3px;
 	font-size:12px
 	}
 	#res-rate-wrap{
-		margin-left:-10px;
+		margin-left:0px;
 		height:300px;
 	}
 	.impact-box{
@@ -127,6 +118,9 @@
 	}
 	.sel-selection{
 		text-align:right
+	}
+	#totalTimeRefresh{
+		display:none
 	}
 	{% endblock %}
    </style>
@@ -144,7 +138,7 @@
             </a>
             <ul class="dropdown-menu">
                <li><a href="#">Gnome</a></li>
-               <li><a href="#">Mozilla</a></li>
+               <li><a href="/mozilla">Mozilla</a></li>
             </ul>
         </li>
         <li><a href="#">Help</a></li>
@@ -166,18 +160,28 @@
 	   <div class="panel-body" style="padding:5px;height:500px">
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select class="option"></select></div>
+					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option id="{{ product.id }}-prod">{{ product.name }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-4">Resolution</div><div class="sel-selection col-md-8"><select class="option"></select></div>
+					<div class="sel-hdr col-md-4">Resolution</div><div class="sel-selection col-md-8"><select id="sel-resolution" class="sel-option">{% for resolution in selInfo.resolutions %}<option>{{ resolution }}</option>{% endfor %}</select></div>
+				</div>
+			</div>
+			<div class="selector-wrap">
+				<div class="sel-inner-wrap row" style="margin:0px">
+					<div class="sel-hdr col-md-4">Severity</div><div class="sel-selection col-md-8"><select id="sel-bug_severity" class="sel-option">{% for severity in selInfo.severities %}<option>{{ severity }}</option>{% endfor %}</select></div>
+				</div>
+			</div>
+			<div class="selector-wrap">
+				<div class="sel-inner-wrap row" style="margin:0px">
+					<div class="sel-hdr col-md-4">Priority</div><div class="sel-selection col-md-8"><select id="sel-priority" class="sel-option">{% for priority in selInfo.priorities %}<option>{{ priority }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
 			<div class="selector-wrap" id="timeTotalSel">
 				<div class="row" style="margin:0px;box-sizing: border-box;">
 				<div class="sel-header">Created Bugs Over Time</div>
-				<div style="float:right;margin-right:10px;margin-top:5px"><img class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
+				<div style="float:right;margin-right:10px;margin-top:5px"><img id="totalTimeRefresh" class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
 				</div>
 				<div id="timeTotalChart"></div>
 			</div>
@@ -186,13 +190,23 @@
 	</div>
 	</div>
 	<div class="workflow-box">
-	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin-top:5px">Workflow</h3></div><div style="padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
+	<div class="panel panel-default" style="margin-top:5px;">
+	<div class="panel-heading" style="background-color: #EFFEEF; padding:1px">
+	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
+	</div>
 	<div id="svg-wrap" oncontextmenu="return false;"></div>
+	</div>
 	</div>
 	</div></div>
 </div>
 <div class="col-md-3" style="padding:8px 2px">
 <div class="border-wrap">
+<div class="panel panel-default" style="margin-top:10px;">
+	<div class="panel-heading" style="background-color:#FFCFCF;">
+		<h3 class="panel-title">
+			MEASUREMENTS
+		</h3>
+	</div>
 	<div class='impact-box'>
 		<div class="row" style="margin:0px">
 			<div class="impact-hdr-wrap col-md-5">
@@ -204,6 +218,7 @@
 		</div>
 		<div id='res-rate-wrap'></div>
 	</div>
+	<hr style="margin:0px 5px 5px 5px;"></hr>
 	<div class='impact-box'>
 		<div class="row" style="margin:0px">
 			<div class="impact-hdr-wrap col-md-5">
@@ -219,8 +234,11 @@
 </div>
 </div>
 </div>
+</div>
 {% block jsblock %}
 <script>
+var timeTotalData = {{ selInfo.totalNum|tojson|safe }};
+
 // an example of transition data
 var workFlowData = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
   'ts': [960114565, 961989692, 971563564, 980116902, 985813821]},
@@ -239,31 +257,10 @@ var workFlowData = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
   'ts': [963700915, 964321820, 968707193]}
 };
 
-var timeTotalData = [[1147651200000,67.79],
-[1147737600000,64.98],
-[1147824000000,65.26],
-[1147910400000,63.18],
-[1147996800000,64.51],
-[1148256000000,63.38],
-[1148342400000,63.15],
-[1148428800000,63.34],
-[1148515200000,64.33],
-[1148601600000,63.55],
-[1148947200000,61.22],
-[1149033600000,59.77],
-[1150033600000,59.77],
-[1151033600000,59.77],
-[1152033600000,59.77],
-[1153033600000,59.77],
-[1154033600000,59.77],
-[1155033600000,20],
-[1156033600000,0],
-];
-
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00CD00","activeBorder":"#00FFFF"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
@@ -274,22 +271,8 @@ $("#timeTotalChart").css("height",height + "px");
 
 initTimeTotal("#timeTotalChart",timeTotalData);
 
-$(".cancel-img").click(function(){
-	$(this).parents(".sel-inner-wrap").css("opacity",0.5);
-	$(this).parents(".selector-wrap").children(".tick-wrap").show();
-});
-$(".tick-img").mouseover(function(){
-    $(this).parents(".selector-wrap").css("border-color","#000");
-});
-$(".tick-img").mouseout(function(){
-    $(this).parents(".selector-wrap").css("border-color","#BBBBBB");
-});
-$(".tick-img").click(function(){
-	$(this).parents(".selector-wrap").children(".sel-inner-wrap").css("opacity",1);
-	$(this).parents(".tick-wrap").hide();
-});
 drawResRate(0);
-var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.9) + "px";
+var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 $('#fix-time-wrap').css("height",chartHeight);
 $('#fix-time-wrap').highcharts({
         chart: {
@@ -351,6 +334,14 @@ $('#fix-time-wrap').highcharts({
             data: [2, 2, 2, 6, 13, 30, 46]
         }]
 });
+
+initSelectorEvent();
+/*
+$("#timeTotalChart").mouseup(function(){
+	var minPixel = Highcharts.charts[0].scroller.zoomedMin;
+	alert(Highcharts.charts[0].scroller.xAxis.toValue(minPixel));
+});*/
+//console.log(Highcharts.charts[0]);
 </script>
 {% endblock %}
 </body>

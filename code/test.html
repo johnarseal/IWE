@@ -1,37 +1,46 @@
 <html>
 <head>
-<style type="text/css">
-*{margin:0;padding:0;}
-#menu{position:absolute;width:150px;visibility:hidden;border:1px solid #666;border-bottom-width:0;}
-#menu li{list-style:none;text-indent:1em;}
-#menu li a{display:block;height:30px;line-height:30px;border-bottom:1px solid #666;text-decoration:none;color:#666;font:12px/30px tahoma;}
-#menu li a:hover{background:#eee;color:black;}
-</style>
 </head>
 <body>
-<div id="menu">
-    <ul>
-        <li><a href="#">contextmenuitem 1</a></li>
-        <li><a href="#">contextmenuitem 2</a></li>
-        <li><a href="#">contextmenuitem 3</a></li>
-        <li><a href="#">contextmenuitem 4</a></li>
-        <li><a href="#">contextmenuitem 5</a></li>
-        <li><a href="#">contextmenuitem 6</a></li>
-    </ul>
-</div>
+<div id="container" style="height: 400px; min-width: 600px"></div>
+
+<script type="text/javascript" src="static/js/lib/Highstock-4.2.5/js/highstock.js"></script>
+<script type="text/javascript" src="http://www.highcharts.com/samples/data/usdeur.js"></script>
+<script src="static/js/lib/jquery-2.2.3.min.js"></script>
 <script type="text/javascript">
-document.oncontextmenu = function(e){
- if(window.event) e = window.event;
- var mymenu = document.getElementById("menu");
- mymenu.style.visibility = "visible";
- mymenu.style.left = e.clientX + 5 +"px";
- mymenu.style.top = e.clientY + 5 + "px";
- return false;
-}
-document.onclick = function(){
- var mymenu = document.getElementById("menu");
- mymenu.style.visibility = "hidden"; 
-}
+$(function() {
+	$('#container').highcharts('StockChart', {
+	    
+	    chart: {
+	    },
+	    
+	    navigator: {
+	    	handles: {
+	    		backgroundColor: 'yellow',
+	    		borderColor: 'red'
+	    	}
+	    },
+	    
+	    rangeSelector: {
+	    	selected: 1
+	    },
+	    
+	    series: [{
+	        name: 'USD to EUR',
+	        data: usdeur
+	    }]
+	});
+    
+    $(Highcharts.charts[0].scroller.handles[0].element).mouseup(function(){
+        var minPixel = Highcharts.charts[0].scroller.zoomedMin;
+        alert(Highcharts.charts[0].scroller.xAxis.toValue(minPixel));
+    });
+    
+    $(Highcharts.charts[0].scroller.handles[1].element).mouseup(function(){
+        var maxPixel = Highcharts.charts[0].scroller.zoomedMax;
+        alert(Highcharts.charts[0].scroller.xAxis.toValue(maxPixel));
+    });
+});
 </script>
 </body>
 </html>
