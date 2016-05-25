@@ -1,23 +1,20 @@
 from flask import Flask, jsonify, request, redirect, url_for, render_template, session
-from settings import *
-from selectors import *
-from workflow import *
+from test2 import *
+from sqliteSession import SqliteSessionInterface
 import os,json
 app = Flask(__name__)
 
 # db is the database
-@app.route('/demo/<db>', methods=["GET"])
+@app.route('/setsession/<db>', methods=["GET"])
 def index(db):
     lastS = str(dict(session))
     session["curDb"] = db
-    selInfo = getSelectors(db)
-    workflowData = getWorkflow(db)
-    return render_template('main.html', selInfo=selInfo, workflowData=workflowData)    
+    return lastS 
     
-@app.route('/api/timetotal', methods=["GET"])
+@app.route('/getsession', methods=["GET"])
 def timetotal():
-    timeTotalData = fetchTimeTotal(request.args)
-    return json.dumps(timeTotalData)
+    fff()
+    return json.dumps(dict(session))
     
 @app.route('/api/workflow', methods=["GET"])
 def workflow():
@@ -39,13 +36,14 @@ def listSession():
 
 
 if __name__ == '__main__':
-    """
     path = '../cache/session'                     
     if not os.path.exists(path):
         os.mkdir(path)
+        print "create dir"
+    else:
+        print "dir exists"
         
     app.session_interface = SqliteSessionInterface(path)
-    """
 
     app.secret_key = "johnzz@pku.edu.cn"
-    app.run(debug=True,threaded=True)
+    app.run(debug=True,threaded=True) 

@@ -192,7 +192,7 @@
 	<div class="workflow-box">
 	<div class="panel panel-default" style="margin-top:5px;">
 	<div class="panel-heading" style="background-color: #EFFEEF; padding:1px">
-	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
+	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" id="wfRedraw" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
 	</div>
 	<div id="svg-wrap" oncontextmenu="return false;"></div>
 	</div>
@@ -238,40 +238,29 @@
 {% block jsblock %}
 <script>
 var timeTotalData = {{ selInfo.totalNum|tojson|safe }};
+var wfData = {{ workflowData|tojson|safe }};
 
-// an example of transition data
-var workFlowData = {'NEW ASSIGNED NEW RESOLVED VERIFIED': {'num': 868,
-  'ts': [960114565, 961989692, 971563564, 980116902, 985813821]},
- 'NEW ASSIGNED RESOLVED': {'num': 1277,
-  'ts': [962415032, 971897691, 1011844691]},
- 'NEW ASSIGNED RESOLVED VERIFIED': {'num': 5608,
-  'ts': [959722930, 961493271, 966717146, 971437573]},
- 'NEW RESOLVED': {'num': 1506, 'ts': [965705416, 1021116874]},
- 'NEW RESOLVED VERIFIED': {'num': 10563,
-  'ts': [960227506, 964279287, 968902410]},
- 'UNCONFIRMED NEW ASSIGNED RESOLVED VERIFIED': {'num': 960,
-  'ts': [963460778, 964149963, 967345129, 973755474, 980765219]},
- 'UNCONFIRMED NEW RESOLVED VERIFIED': {'num': 2279,
-  'ts': [964684927, 965322058, 971773362, 978675395]},
- 'UNCONFIRMED RESOLVED VERIFIED': {'num': 6065,
-  'ts': [963700915, 964321820, 968707193]}
-};
 
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
-drawWorkFlow(workFlowData,svgWorkFlowAttr,"#svg-wrap");
+drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
 
 var height = parseInt($("#timeTotalChart").css("width")) * 4 / 5;
 $("#timeTotalChart").css("height",height + "px");
 
 initTimeTotal("#timeTotalChart",timeTotalData);
 
-drawResRate(0);
+initResRate();
+
+var selectors;
+initSelectorEvent();
+initWorkflowEvent();
+
 var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 $('#fix-time-wrap').css("height",chartHeight);
 $('#fix-time-wrap').highcharts({
@@ -335,12 +324,6 @@ $('#fix-time-wrap').highcharts({
         }]
 });
 
-initSelectorEvent();
-/*
-$("#timeTotalChart").mouseup(function(){
-	var minPixel = Highcharts.charts[0].scroller.zoomedMin;
-	alert(Highcharts.charts[0].scroller.xAxis.toValue(minPixel));
-});*/
 //console.log(Highcharts.charts[0]);
 </script>
 {% endblock %}

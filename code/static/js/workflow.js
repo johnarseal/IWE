@@ -1,16 +1,6 @@
 // the ts of every node represents the 
 // time gap between its parent and itself
 function parseTree(d){
-	//caculate the time gap
-	for (tranStr in d)
-	{
-		var initST = d[tranStr]["ts"][0];
-		d[tranStr]["ts"][0] = 0;
-		for (i = 1; i < d[tranStr]["ts"].length; i++)
-		{
-			d[tranStr]["ts"][i] -= initST + d[tranStr]["ts"][i-1];
-		}
-	}
 	var tagDict = {
 	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO"
 	}
@@ -51,7 +41,7 @@ function parseTree(d){
 				curNode = curNode["child"][curTran];
 				// average the ts
 				totalNum = curNode["num"] + tranAttr["num"]
-				curNode["ts"] = parseInt((curNode["num"] * curNode["ts"] + tranAttr["num"] * tranAttr["ts"][i]) / totalNum);
+				curNode["ts"] = (curNode["num"] * curNode["ts"] + tranAttr["num"] * tranAttr["ts"][i]) / totalNum;
 				curNode["num"] = totalNum;
 			}
 			else{		// a new node
@@ -128,6 +118,7 @@ function buildScale(svgAttr,r){
 				nodeIndArr[0].child.push(node.id);
 			}
 			for (childStr in node.child){
+				
 				if(childStr != "END"){
 					nodeIndArr[node.id]["child"].push(node.child[childStr].id);
 				}
@@ -135,17 +126,26 @@ function buildScale(svgAttr,r){
 			maxTS = Math.max(maxTS,lTs);
 			maxNUM = Math.max(maxNUM,node.num);	
 		}
+		var thisHeight = 0;
 		for (childStr in node.child){
 			if(childStr != "END"){
-				traverseTree(node.child[childStr],lTs,depth+1);
+				var curHeight = traverseTree(node.child[childStr],lTs,depth+1);
+				thisHeight = Math.max(thisHeight,curHeight);
 			}
 		}
+		node.height = thisHeight;
+		nodeIndArr[node.id].height = node.height;
+		return thisHeight + 1;
 	}
 	traverseTree(r,0,0);
 	function tsSort(a,b){
+		if(a.totalTS == b.totalTS){
+			return a.id - b.id;
+		}
 		return a.totalTS - b.totalTS;
 	}
-	nodeArr = nodeIndArr.slice(0);
+	// deep copy
+	var nodeArr = nodeIndArr.slice(0);
 	nodeArr.sort(tsSort);
 	
 	// set the maxR according to the width
@@ -154,8 +154,9 @@ function buildScale(svgAttr,r){
 	if(tDepth * maxR * 2 > (svgAttr.height - svgAttr.paddingV * 2)){
 		maxR = (svgAttr.height - svgAttr.paddingV * 2) * 0.8 / (tDepth * 2);
 	}
-	minR = maxR * 0.5;
-	minLineLen = minR * 0.4;
+	maxR = Math.min(maxR,svgAttr.height / 8);
+	minR = maxR * 0.4;
+	minLineLen = minR * 0.5;
 	//scale of the radius	
 	crScale = d3.scale.linear()
 		.domain([minNUM, maxNUM])
@@ -180,7 +181,11 @@ function buildScale(svgAttr,r){
 		if(nodeArr[i].parentId != 0){
 			minCY = nodeIndArr[nodeArr[i].parentId].cy + crScale(nodeIndArr[nodeArr[i].parentId].num) + minLineLen + crScale(nodeArr[i].num);		
 		}
-		nodeIndArr[nodeArr[i].id].cy = lastCY = Math.max(idealCY,minCY);
+		var bottomMargin = nodeArr[i].height * (maxR + minR);
+		var maxCY = svgAttr.height - svgAttr.paddingH - bottomMargin - crScale(nodeArr[i].num);
+		lastCY = Math.max(idealCY,minCY);
+		lastCY = Math.min(lastCY,maxCY);
+		nodeIndArr[nodeArr[i].id].cy = lastCY;
 		lastTS = nodeArr[i].totalTS;
 	}
 		
@@ -189,40 +194,44 @@ function buildScale(svgAttr,r){
 	var scaleInd = [0,parseInt(nodeNUM / 2), nodeNUM-1];
 	for (var i in scaleInd){
 		var nodeInfo = nodeIndArr[nodeArr[scaleInd[i]].id];
-		var oneScale = {"scale":nodeInfo.cy,"text":nodeInfo.totalTS};
+		var oneScale = {"scale":nodeInfo.cy,"text":nodeInfo.totalTS.toFixed(1)};
 		axisD.push(oneScale);
 	}
-
- 
+	
 	var trScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr,"axisD":axisD};
 	return trScale;
 }
 
 
 //draw a single node
-function drawNode(node,cx,cy,cr,svg,svgAttr){
-	svg.append("circle").attr("cx",cx)
-						.attr("cy",cy)
-						.attr("r",cr)
+function cacheNode(node,cx,cy,cr,svg,svgAttr,nodeCache){
+	nodeCache.push({cx:cx,cy:cy,cr:cr,tag:node.tag,id:node.id});
+}
+function drawNodes(svg,svgAttr,nodeCache){
+	for(var i in nodeCache){
+		svg.append("circle").attr("cx",nodeCache[i].cx)
+						.attr("cy",nodeCache[i].cy)
+						.attr("r",nodeCache[i].cr)
 						.attr("class","mycir")
-						.attr("fill",svgAttr.colors.node[node.tag])
+						.attr("fill",svgAttr.colors.node[nodeCache[i].tag])
 						.attr("stroke",svgAttr.colors.nodeBorder)
-						//.attr("stroke-opacity",0.8)
-						.attr("stroke-width",6)
+						.attr("stroke-width",5)
 						.attr("class","nodeTrigger")
-						.attr("id",node.id+"-cir");
-						
-	svg.append("text").attr("x",cx)
-						.attr("y",cy)
+						.attr("id",nodeCache[i].id+"-cir")
+						.style("title","sb");
+		svg.append("text").attr("x",nodeCache[i].cx)
+						.attr("y",nodeCache[i].cy)
 						.attr("text-anchor","middle")
 						.attr("fill",svgAttr.colors.text)
 						.attr("dy",".25em")
-						.text(node.tag)
-						.attr("id",node.id+"-cirtxt")
+						.text(nodeCache[i].tag)
+						.attr("id",nodeCache[i].id+"-cirtxt")
 						.attr("class","nodeTrigger")
-						.style("cursor","default");
+						.style("cursor","default")
+						.style("font-size","12px");
+		
+	}
 }
-
 
 // draw the upper edge
 function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr,edgeWidth,svg,svgAttr){
@@ -260,7 +269,7 @@ function drawEdge(lEdgeX,lEdgeY,node,cx,cy,cr,edgeWidth,svg,svgAttr){
 
 
 //draw the whole tree
-function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr){
+function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr,nodeCache){
 		
 	// compute the cx,cy,cr first
 	var cx,cy,cr;
@@ -306,6 +315,7 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr){
 	if (totalChildNum != 0 && node.tag != "root"){
 		edgeX = cx;
 		edgeY = cy + cr + (minChildCY - treeScale.crScale(treeScale.nodeIndArr[minChildId].num) - cy - cr) * 0.2;
+		
 		svg.append("line").attr("x1",edgeX)
 						.attr("y1",cy + cr)
 						.attr("x2",edgeX)
@@ -324,12 +334,12 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr){
 		var distRate = ((node.child[childStr].maxWidth / node.maxWidth) + (node.child[childStr].num / totalChildNum)) / 2;
 		var dist = curDist * distRate;
 		//draw the tree of son
-		drawTree(edgeX,edgeY,node.child[childStr],curLeft,curLeft+dist,treeScale,svg,svgAttr);
+		drawTree(edgeX,edgeY,node.child[childStr],curLeft,curLeft+dist,treeScale,svg,svgAttr,nodeCache);
 		curLeft = curLeft+dist;
 	}
 	// draw the node
 	if(node.tag != 'root'){
-		drawNode(node,cx,cy,cr,svg,svgAttr);
+		cacheNode(node,cx,cy,cr,svg,svgAttr,nodeCache);
 	}
 }
 
@@ -374,14 +384,15 @@ function drawWorkFlow(d,svgAttr,svgId){
     .attr("height", svgAttr.height);
 	
 	var r = parseTree(d);
-	
 	searchWidth(r);
 	
 	var scale = buildScale(svgAttr,r);
 	
-	drawTree(0,0,r,svgAttr.paddingH + svgAttr.axisWidth,svgAttr.width - svgAttr.paddingH,scale,svg,svgAttr);
+	var nodeCache = new Array();
+	drawTree(0,0,r,svgAttr.paddingH + svgAttr.axisWidth,svgAttr.width - svgAttr.paddingH,scale,svg,svgAttr,nodeCache);
+	drawNodes(svg,svgAttr,nodeCache);
 	
-	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time");
+	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time(week)");
 	
 	var activeArr = new Array();
 	var lastSelNodeId;
@@ -468,6 +479,10 @@ function drawWorkFlow(d,svgAttr,svgId){
 		}
 	});
 	
+	$("#wf-sel").unbind();
+	$("#wf-cancel").unbind();
+	
+	
 	$("#wf-sel").click(function(){
 		activeChildren(0);
 	});
@@ -476,4 +491,18 @@ function drawWorkFlow(d,svgAttr,svgId){
 	});
 }
 
+function initWorkflowEvent(){
+	
+	$("#wfRedraw").click(function(){
+		$.get(
+			"/api/workflow",
+			selectors,
+			function(data){
+				$("#svg-wrap").html("");
+				drawWorkFlow(data,svgWorkFlowAttr,"#svg-wrap");
+			},
+			"json"
+		);
+	});
+}
 

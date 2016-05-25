@@ -1,4 +1,4 @@
-function drawResRate(data){
+function initResRate(){
 
 	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.5) + "px";
 	$('#res-rate-wrap').css("height",chartHeight)
@@ -38,17 +38,59 @@ function drawResRate(data){
 		credits: {
 		  enabled:false
 		},
-		series: [{
-		   name: 'Duplicate',
-				data: [0.2]
+		series: []
+	});
+}
+function drawResRate(data){
+
+	$.get(
+		"/api/resrate",
+		selectors,
+		function(data){
+			var chart = $("#timeTotalChart").highcharts();
+			chart.series[0].setData(data);
 		},
-		{
-			name: 'NEEDINFO',
-				data: [0.4]
+		"json"		
+	);
+
+	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.5) + "px";
+	$('#res-rate-wrap').css("height",chartHeight)
+
+	$('#res-rate-wrap').highcharts({
+		chart: {
+			type: 'bar'
 		},
-		{
-			name: 'Fixed',
-				data: [0.4]
-		}]
+		title: {
+			text: null,
+			margin:0
+		},
+		xAxis:{
+			labels:{
+				enabled:false
+			}
+		},
+		yAxis: {
+			min: 0,
+			max: 1,
+			title: {
+				text:"rate",
+				margin:0,
+				offset:20
+			},
+		},
+		legend: {
+			reversed: true,
+			verticalAlign: 'top',
+			margin:0
+		},
+		plotOptions: {
+			series: {
+				stacking: 'normal'
+			}
+		},
+		credits: {
+		  enabled:false
+		},
+		series: []
 	});
 }

@@ -58,10 +58,14 @@ def selectorsInit(db):
 # get the data from selectors, first try session, if not cached then try database    
 def getSelectors(db):
         
-    if db in session:
+    if db not in session:
+        session[db] = {}
+    
+    if "selInfo" in session[db]:
+        print "cahce hit"
         return session[db]["selInfo"]
     else:
-        session[db] = {}
+        print "cache miss"
         selInfo = selectorsInit(db)
         session[db]["selInfo"] = selInfo
         return selInfo
@@ -72,19 +76,23 @@ def fetchTimeTotal(selectors):
     sql = """
         SELECT DATE_FORMAT(ts0,"%Y-%m"),COUNT(*) FROM iwe_statustran
     """
-    if selectors["bug_severity"] != "All" or selectors["priority"] != "All" or selectors["product_id"] != "-1" or selectors["resolution"] != "All":
-        sql += " WHERE "
-        for key in selectors:
+    conSql = " WHERE "
+    hasKey = False
+    keys = ("bug_severity","priority","product_id","resolution")
+    for key in keys:
+        if key in selectors:
             if selectors[key] == "All" or (key == "product_id" and selectors[key] == '-1'): 
                 continue
-            sql += key + " = '" + selectors[key] + "' AND "
-        sql = sql[:-4]
+            hasKey = True
+            conSql += key + " = '" + selectors[key] + "' AND "
+    
+    if hasKey:
+        sql += conSql[:-4]
     
     sql += """ 
         GROUP BY DATE_FORMAT(ts0,"%Y-%m")
     """
     
-    print sql
     cursor = conDB(session["curDb"])
     cursor.execute(sql)
     totalNum = cursor.fetchall()

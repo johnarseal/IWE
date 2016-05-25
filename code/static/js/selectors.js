@@ -35,29 +35,58 @@ function initTimeTotal(chartId,data){
 
 function initSelectorEvent(){
 	
-	selectors = {product_id:-1,resolution:"All",bug_severity:"All",priority:"All"};
+	selectors = {};
 	
 	$(".sel-option").change(function(){
 		$("#totalTimeRefresh").show();
 		if($(this).attr("id")=="sel-product"){
-			selectors.product_id = parseInt($(this).find("option:selected").attr("id"));
+			if(parseInt($(this).find("option:selected").attr("id")) != -1){
+				selectors.product_id = parseInt($(this).find("option:selected").attr("id"));
+			}
+			else{
+				delete selectors.product_id;
+			}
 		}
 		else{
 			var field = $(this).attr("id").split("-")[1];
-			selectors[field] = $(this).find("option:selected").text();
+			if($(this).find("option:selected").text() != "All"){
+				selectors[field] = $(this).find("option:selected").text();
+			}
+			else{
+				delete selectors[field];
+			}
 		}
 	});
-	
 	
 	$("#totalTimeRefresh").click(function(){
 		redrawTimeTotal();
 		$("#totalTimeRefresh").hide();
 	});
+	
+	$(".highcharts-range-selector").change(function(){
+		var key = $(this).attr("name") + "Date";
+		var dateStr;
+		if($(this).attr("name") == "min"){
+			dateStr = "-01"
+		}
+		else{
+			dateStr = "-31"
+		}
+		selectors[key] = $(this).val() + dateStr;
+		console.log(selectors);
+	});
+	$("#timeTotalChart").mouseup(function(){
+		var minDate = $("input[class='highcharts-range-selector'][name='min']").val() + "-01";
+		var maxDate = $("input[class='highcharts-range-selector'][name='max']").val() + "-31";
+		selectors.minDate = minDate;
+		selectors.maxDate = maxDate;
+		console.log(selectors);
+	});
 }
 
 function redrawTimeTotal(){
 	$.get(
-		"/timetotal",
+		"/api/timetotal",
 		selectors,
 		function(data){
 			var chart = $("#timeTotalChart").highcharts();

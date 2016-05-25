@@ -1,45 +1,21 @@
 <html>
 <head>
+<script type="text/javascript" src="jquery-2.2.3.min.js"></script>
 </head>
 <body>
-<div id="container" style="height: 400px; min-width: 600px"></div>
-
-<script type="text/javascript" src="static/js/lib/Highstock-4.2.5/js/highstock.js"></script>
-<script type="text/javascript" src="http://www.highcharts.com/samples/data/usdeur.js"></script>
-<script src="static/js/lib/jquery-2.2.3.min.js"></script>
+<div>
+<input class="aa" id="s" type="text" /><button id="btn">guess</button>
+</div>
 <script type="text/javascript">
-$(function() {
-	$('#container').highcharts('StockChart', {
-	    
-	    chart: {
-	    },
-	    
-	    navigator: {
-	    	handles: {
-	    		backgroundColor: 'yellow',
-	    		borderColor: 'red'
-	    	}
-	    },
-	    
-	    rangeSelector: {
-	    	selected: 1
-	    },
-	    
-	    series: [{
-	        name: 'USD to EUR',
-	        data: usdeur
-	    }]
-	});
-    
-    $(Highcharts.charts[0].scroller.handles[0].element).mouseup(function(){
-        var minPixel = Highcharts.charts[0].scroller.zoomedMin;
-        alert(Highcharts.charts[0].scroller.xAxis.toValue(minPixel));
-    });
-    
-    $(Highcharts.charts[0].scroller.handles[1].element).mouseup(function(){
-        var maxPixel = Highcharts.charts[0].scroller.zoomedMax;
-        alert(Highcharts.charts[0].scroller.xAxis.toValue(maxPixel));
-    });
+var a = parseInt(Math.random() * 10) % 3;
+$("#btn").click(function(){
+	var b = $("#s").val();
+	if(a == b){
+		alert("right");
+	}
+	else{
+		alert("wrong");
+	}
 });
 </script>
 </body>
