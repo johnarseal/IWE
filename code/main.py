@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, redirect, url_for, render_template, s
 from settings import *
 from selectors import *
 from workflow import *
+from impact import *
 import os,json
 app = Flask(__name__)
 
@@ -23,6 +24,11 @@ def timetotal():
 def workflow():
     wfData = fetchWorkflow(request.args)
     return json.dumps(wfData)
+    
+@app.route('/api/resrate', methods=["GET"])
+def resrate():
+    resRateData = fetchResRate(request.args)
+    return json.dumps(resRateData)
     
 @app.route('/debug/<db>/flushsession', methods=["GET"])
 def destroySession(db):

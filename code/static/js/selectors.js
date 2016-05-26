@@ -34,9 +34,7 @@ function initTimeTotal(chartId,data){
 }
 
 function initSelectorEvent(){
-	
-	selectors = {};
-	
+		
 	$(".sel-option").change(function(){
 		$("#totalTimeRefresh").show();
 		if($(this).attr("id")=="sel-product"){
@@ -73,14 +71,12 @@ function initSelectorEvent(){
 			dateStr = "-31"
 		}
 		selectors[key] = $(this).val() + dateStr;
-		console.log(selectors);
 	});
 	$("#timeTotalChart").mouseup(function(){
 		var minDate = $("input[class='highcharts-range-selector'][name='min']").val() + "-01";
 		var maxDate = $("input[class='highcharts-range-selector'][name='max']").val() + "-31";
 		selectors.minDate = minDate;
 		selectors.maxDate = maxDate;
-		console.log(selectors);
 	});
 }
 

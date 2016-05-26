@@ -45,7 +45,7 @@ function parseTree(d){
 				curNode["num"] = totalNum;
 			}
 			else{		// a new node
-				curNode["child"][curTran]={"child":{},"tag":tagDict[tranStr],"id":nodeId++,"parentId":curNode.id};
+				curNode["child"][curTran]={"child":{},"tag":tagDict[tranStr],"id":nodeId++,"parentId":curNode.id,"statusStr":tranStr};
 				curNode = curNode["child"][curTran];
 				curNode["num"] = tranAttr["num"];
 				curNode["ts"] = tranAttr["ts"][i];
@@ -113,7 +113,7 @@ function buildScale(svgAttr,r){
 			tDepth = Math.max(tDepth,depth);
 			lTs += node.ts;
 			node.totalTS = lTs;
-			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num};
+			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num,"statusStr":node.statusStr};
 			if(node.parentId==0){
 				nodeIndArr[0].child.push(node.id);
 			}
@@ -383,6 +383,8 @@ function drawWorkFlow(d,svgAttr,svgId){
     .attr("width", svgAttr.width)
     .attr("height", svgAttr.height);
 	
+	selectors.tranStr = new Array();
+	
 	var r = parseTree(d);
 	searchWidth(r);
 	
@@ -443,6 +445,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 			if($.inArray(nodeId, activeArr) < 0){
 				return;
 			}
+			selectors.tranStr.push(scale.nodeIndArr[nodeId].statusStr);
 			//turn the active node color back to normal
 			recoverChildren();
 			//turn this node to the selected color
@@ -457,7 +460,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 				$("#"+nodeId+"-upline")
 					.css("stroke",svgAttr.colors.selectedBorder);
 			}
-			//turn its child to active node
+			//turn its child to activate node
 			activeChildren(lastSelNodeId);
 		}
 		else if(event.button==2 && lastSelNodeId == parseInt($(this).attr("id"))){
@@ -465,9 +468,10 @@ function drawWorkFlow(d,svgAttr,svgId){
 			recoverChildren();
 			//turn this node to the selected color
 			var nodeId = parseInt($(this).attr("id"));
+			selectors.tranStr.pop();
 			lastSelNodeId = scale.nodeIndArr[nodeId].parentId;
-			if(scale.nodeIndArr[nodeId].parentId != 0){
-				$("#"+scale.nodeIndArr[nodeId].parentId+"-btmedge")
+			if(lastSelNodeId != 0){
+				$("#"+lastSelNodeId+"-btmedge")
 					.css("stroke",svgAttr.colors.edge);
 				$("#"+nodeId+"-uppath")
 					.css("stroke",svgAttr.colors.edge);

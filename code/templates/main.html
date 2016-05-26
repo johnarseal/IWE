@@ -213,7 +213,7 @@
 				<h4 style="margin-top:5px">Resolution</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
-				<button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button type="button" class="my-btn btn btn-default">Cancel</button>
+				<button type="button" class="my-btn btn btn-info">Time Trend</button><button id="resDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resClear" type="button" class="my-btn btn btn-default">Clear</button>
 			</div>
 		</div>
 		<div id='res-rate-wrap'></div>
@@ -237,6 +237,7 @@
 </div>
 {% block jsblock %}
 <script>
+var selectors = {};
 var timeTotalData = {{ selInfo.totalNum|tojson|safe }};
 var wfData = {{ workflowData|tojson|safe }};
 
@@ -255,11 +256,9 @@ $("#timeTotalChart").css("height",height + "px");
 
 initTimeTotal("#timeTotalChart",timeTotalData);
 
-initResRate();
-
-var selectors;
 initSelectorEvent();
 initWorkflowEvent();
+initImpactEvent();
 
 var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 $('#fix-time-wrap').css("height",chartHeight);
