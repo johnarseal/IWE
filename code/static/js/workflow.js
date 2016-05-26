@@ -1,6 +1,7 @@
 // the ts of every node represents the 
 // time gap between its parent and itself
 function parseTree(d){
+	console.log(d);
 	var tagDict = {
 	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO"
 	}
@@ -14,7 +15,7 @@ function parseTree(d){
 		var tranAttr = d[tranStr];
 		var endInd = tranArr.length - 1;
 		//iterate through a transition str
-		for (i in tranArr){
+		for (var i in tranArr){
 			var curTran = tranArr[i];
 			// check whether to merge the node
 			// find a node to merge
@@ -42,6 +43,7 @@ function parseTree(d){
 				// average the ts
 				totalNum = curNode["num"] + tranAttr["num"]
 				curNode["ts"] = (curNode["num"] * curNode["ts"] + tranAttr["num"] * tranAttr["ts"][i]) / totalNum;
+				curNode["meanTS"] = (curNode["num"] * curNode["meanTS"] + tranAttr["num"] * tranAttr["meants"][i]) / totalNum;
 				curNode["num"] = totalNum;
 			}
 			else{		// a new node
@@ -49,6 +51,7 @@ function parseTree(d){
 				curNode = curNode["child"][curTran];
 				curNode["num"] = tranAttr["num"];
 				curNode["ts"] = tranAttr["ts"][i];
+				curNode["meanTS"] = tranAttr["meants"][i];
 			}
 			// if it is an end, add a node
 			if(i == endInd){
@@ -94,6 +97,8 @@ function buildScale(svgAttr,r){
 	var minLineWidth = 2;
 	var maxLineWidth = 20;
 	var minLineLen;
+	var maxBorder = 5;
+	var minBorder = 2;
 	
 	// to find the maximum and minimal value in the tree
 	// in order to build the scale
@@ -113,12 +118,11 @@ function buildScale(svgAttr,r){
 			tDepth = Math.max(tDepth,depth);
 			lTs += node.ts;
 			node.totalTS = lTs;
-			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num,"statusStr":node.statusStr};
+			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num,"statusStr":node.statusStr,"meanTS":node.meanTS};
 			if(node.parentId==0){
 				nodeIndArr[0].child.push(node.id);
 			}
 			for (childStr in node.child){
-				
 				if(childStr != "END"){
 					nodeIndArr[node.id]["child"].push(node.child[childStr].id);
 				}
@@ -161,6 +165,10 @@ function buildScale(svgAttr,r){
 	crScale = d3.scale.linear()
 		.domain([minNUM, maxNUM])
         .range([minR, maxR]);
+		
+	borderScale = d3.scale.linear()
+		.domain([minR, maxR])
+        .range([minBorder, maxBorder]);
 	
 	//scale of the width of edge in the tree
 	maxLineWidth = Math.min(maxR * widthLineNodeRate,maxLineWidth);
@@ -198,7 +206,7 @@ function buildScale(svgAttr,r){
 		axisD.push(oneScale);
 	}
 	
-	var trScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr,"axisD":axisD};
+	var trScale = {"crScale":crScale,"edgeWidthScale":edgeWidthScale,"nodeIndArr":nodeIndArr,"axisD":axisD,"borderScale":borderScale};
 	return trScale;
 }
 
@@ -207,29 +215,28 @@ function buildScale(svgAttr,r){
 function cacheNode(node,cx,cy,cr,svg,svgAttr,nodeCache){
 	nodeCache.push({cx:cx,cy:cy,cr:cr,tag:node.tag,id:node.id});
 }
-function drawNodes(svg,svgAttr,nodeCache){
+function drawNodes(svg,svgAttr,nodeCache,scale){
 	for(var i in nodeCache){
-		svg.append("circle").attr("cx",nodeCache[i].cx)
+		var g = svg.append("g").attr("class","nodeTrigger").attr("id","i"+nodeCache[i].id+"-cirg");
+		g.append("circle").attr("cx",nodeCache[i].cx)
 						.attr("cy",nodeCache[i].cy)
 						.attr("r",nodeCache[i].cr)
-						.attr("class","mycir")
 						.attr("fill",svgAttr.colors.node[nodeCache[i].tag])
 						.attr("stroke",svgAttr.colors.nodeBorder)
-						.attr("stroke-width",5)
-						.attr("class","nodeTrigger")
+						.attr("stroke-width",scale.borderScale(nodeCache[i].cr))
+						.attr("class"," nodeCircle")
 						.attr("id",nodeCache[i].id+"-cir")
 						.style("title","sb");
-		svg.append("text").attr("x",nodeCache[i].cx)
+		g.append("text").attr("x",nodeCache[i].cx)
 						.attr("y",nodeCache[i].cy)
 						.attr("text-anchor","middle")
 						.attr("fill",svgAttr.colors.text)
 						.attr("dy",".25em")
 						.text(nodeCache[i].tag)
 						.attr("id",nodeCache[i].id+"-cirtxt")
-						.attr("class","nodeTrigger")
 						.style("cursor","default")
 						.style("font-size","12px");
-		
+
 	}
 }
 
@@ -376,7 +383,69 @@ var g = svg.append("g")
 			.text(title);
 	}
 }
+function lightColor(colorInt){
+	var colorArr = new Array();
+	for(var i = 0; i < 3; i++){
+		colorArr[i] = colorInt % 256;
+		colorInt = parseInt(colorInt / 256);
+	}
+	var retVal = 0;
+	var tmp;
+	for(var i = 2; i >= 0; i--){
+		if(colorArr[i]+25 > 255){
+			tmp = 255;
+		}
+		else{
+			tmp = colorArr[i]+25;
+		}
+		retVal = retVal * 256 + tmp;
+	}
+	return retVal;
+}
 
+function drawToolTip(svg,svgAttr,nodeId,scale){
+	var boxWidth = 120;
+	var boxHeight = 75;
+	var tipG = svg.append("g")
+				.attr("id","i"+nodeId+"-tooltip");
+	var tcx = parseInt($("#"+nodeId+"-cir").attr("cx"))+parseInt($("#"+nodeId+"-cir").attr("r"));
+	var tcy = parseInt($("#"+nodeId+"-cir").attr("cy"))-20;
+	if(tcx + boxWidth > svgAttr.width){
+		tcx = parseInt($("#"+nodeId+"-cir").attr("cx")) - parseInt($("#"+nodeId+"-cir").attr("r")) - boxWidth;
+	}
+	if(tcy + boxHeight > svgAttr.height){
+		tcy -= (boxHeight - 20);
+	}
+	tipG.append("rect").attr("width",boxWidth)
+					.attr("height",boxHeight)
+					.attr("x",tcx)
+					.attr("y",tcy)
+					.attr("fill-opacity",0.35)
+					.attr("fill","rgb(121, 205, 205)");
+	var txtBox = tipG.append("text")
+					.attr("x",tcx+5)
+					.attr("y",tcy+20);
+
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.style("font-weight","bold")
+		.text("num ");
+	txtBox.append("tspan")
+		.text(scale.nodeIndArr[nodeId].num);
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
+		.style("font-weight","bold")
+		.text("Time(week)")
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
+		.text("  Median "+scale.nodeIndArr[nodeId].totalTS.toFixed(2));
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
+		.text("  Mean   "+scale.nodeIndArr[nodeId].meanTS.toFixed(2));	
+}
 function drawWorkFlow(d,svgAttr,svgId){
 	var svg = d3.select(svgId)  
     .append("svg")     
@@ -392,7 +461,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 	
 	var nodeCache = new Array();
 	drawTree(0,0,r,svgAttr.paddingH + svgAttr.axisWidth,svgAttr.width - svgAttr.paddingH,scale,svg,svgAttr,nodeCache);
-	drawNodes(svg,svgAttr,nodeCache);
+	drawNodes(svg,svgAttr,nodeCache,scale);
 	
 	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time(week)");
 	
@@ -439,9 +508,14 @@ function drawWorkFlow(d,svgAttr,svgId){
 		}
 		activeArr = new Array();
 	}
+	$("#wf-sel").unbind();
+	$("#wf-cancel").unbind();
+	$(".nodeTrigger").unbind();
+	
 	$(".nodeTrigger").mousedown(function(event){
 		if(event.button==0){
-			var nodeId = parseInt($(this).attr("id"));
+			var nodeId = parseInt($(this).attr("id").substr(1));
+			//console.log($(this).attr("id"));
 			if($.inArray(nodeId, activeArr) < 0){
 				return;
 			}
@@ -463,11 +537,11 @@ function drawWorkFlow(d,svgAttr,svgId){
 			//turn its child to activate node
 			activeChildren(lastSelNodeId);
 		}
-		else if(event.button==2 && lastSelNodeId == parseInt($(this).attr("id"))){
+		else if(event.button==2 && lastSelNodeId == parseInt($(this).attr("id").substr(1))){
 			//turn the active node color back to normal
 			recoverChildren();
 			//turn this node to the selected color
-			var nodeId = parseInt($(this).attr("id"));
+			var nodeId = parseInt($(this).attr("id").substr(1));
 			selectors.tranStr.pop();
 			lastSelNodeId = scale.nodeIndArr[nodeId].parentId;
 			if(lastSelNodeId != 0){
@@ -483,15 +557,30 @@ function drawWorkFlow(d,svgAttr,svgId){
 		}
 	});
 	
-	$("#wf-sel").unbind();
-	$("#wf-cancel").unbind();
-	
-	
 	$("#wf-sel").click(function(){
 		activeChildren(0);
 	});
 	$("#wf-cancel").click(function(){
 		recoverTree();
+	});
+	var oldColor = null;
+	$(".nodeTrigger").mouseenter(function(){
+		if(oldColor == null){
+			var nodeId = parseInt($(this).attr("id").substr(1));
+			oldColor = $("#"+nodeId+"-cir").attr("fill");
+			var colorInt = parseInt($("#"+nodeId+"-cir").attr("fill").substr(1),16);
+			var newColor = lightColor(colorInt).toString(16);
+			$("#"+nodeId+"-cir").attr("fill","#"+newColor);
+			$("#"+nodeId+"-cirtxt").attr("fill","#BBB");
+			drawToolTip(svg,svgAttr,nodeId,scale)
+		}
+	});
+	$(".nodeTrigger").mouseleave(function(){
+		var nodeId = parseInt($(this).attr("id").substr(1));
+		$("#"+nodeId+"-cir").attr("fill",oldColor);
+		$("#"+nodeId+"-cirtxt").attr("fill","#000");
+		oldColor = null;
+		$("#i"+nodeId+"-tooltip").remove();
 	});
 }
 

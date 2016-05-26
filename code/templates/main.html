@@ -263,9 +263,7 @@ initImpactEvent();
 var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 $('#fix-time-wrap').css("height",chartHeight);
 $('#fix-time-wrap').highcharts({
-        chart: {
-            type: 'area'
-        },
+
         title: {
             text:null,
 			margin:0
@@ -310,7 +308,7 @@ $('#fix-time-wrap').highcharts({
             data: [502, 635, 809, 947, 1402, 3634, 5268]
         }, {
             name: 'Africa',
-            data: [106, 107, 111, 133, 221, 767, 1766]
+            data: [106, 107]
         }, {
             name: 'Europe',
             data: [163, 203, 276, 408, 547, 729, 628]

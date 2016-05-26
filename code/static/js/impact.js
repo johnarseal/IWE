@@ -101,7 +101,6 @@ function drawResRate(){
 		delete selectors.transition;
 	}
 	
-	console.log(selectors);
 	
 	$.get(
 		"/api/resrate",

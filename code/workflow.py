@@ -23,6 +23,10 @@ def processWFdata(rawD):
     
     # data frame contains the number info
     sizeSeries = df.groupby(df[0]).size()
+   
+    # data frame contains the mean info
+    meanDF = df.groupby(df[0]).mean().T
+    meanDF = meanDF.fillna(-1)
     
     # start to process the data
     sizeList = []
@@ -43,9 +47,11 @@ def processWFdata(rawD):
     divisor = 3600*24*7
         
     for tran,num in sizeList:
-        tmp = [0,]
-        tmp.extend([round(float(x/(divisor)),2) for x in medianDF[tran].values if x != -1])
-        rtData[tran] = {"num":num,"ts":tmp}
+        medianArr = [0,]
+        medianArr.extend([round(float(x/(divisor)),2) for x in medianDF[tran].values if x != -1])
+        meanArr = [0,]
+        meanArr.extend([round(float(x/(divisor)),2) for x in meanDF[tran].values if x != -1])
+        rtData[tran] = {"num":num,"ts":medianArr,"meants":meanArr}
         curNum += num
         curStr += 1
         # return 15 transision at most
