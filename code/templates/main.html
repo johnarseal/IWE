@@ -245,7 +245,7 @@ var wfData = {{ workflowData|tojson|safe }};
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566","CLO":"#BC96F7"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
@@ -269,7 +269,7 @@ $('#fix-time-wrap').highcharts({
 			margin:0
         },
         xAxis: {
-            categories: ['1750', '1800', '1850', '1900', '1950', '1999', '2050'],
+            categories: ['0', '1', '50', '1900', '1950', '1999', '2050'],
             tickmarkPlacement: 'on',
             title: {
                 enabled: false

@@ -3,7 +3,7 @@
 function parseTree(d){
 	console.log(d);
 	var tagDict = {
-	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO"
+	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO","CLOSED":"CLO"
 	}
 	//build a tree
 	var nodeId = 0;
@@ -177,6 +177,8 @@ function buildScale(svgAttr,r){
         .range([minLineWidth, maxLineWidth]);
 	
 	// directly find the cy of each node
+	console.log(nodeArr);
+	console.log(r);
 	var lastTS = 0;
 	var topCY = svgAttr.paddingH + maxR;
 	var lastCY = topCY;
@@ -193,6 +195,7 @@ function buildScale(svgAttr,r){
 		var maxCY = svgAttr.height - svgAttr.paddingH - bottomMargin - crScale(nodeArr[i].num);
 		lastCY = Math.max(idealCY,minCY);
 		lastCY = Math.min(lastCY,maxCY);
+//		console.log();
 		nodeIndArr[nodeArr[i].id].cy = lastCY;
 		lastTS = nodeArr[i].totalTS;
 	}
@@ -224,7 +227,7 @@ function drawNodes(svg,svgAttr,nodeCache,scale){
 						.attr("fill",svgAttr.colors.node[nodeCache[i].tag])
 						.attr("stroke",svgAttr.colors.nodeBorder)
 						.attr("stroke-width",scale.borderScale(nodeCache[i].cr))
-						.attr("class"," nodeCircle")
+						.attr("class","nodeCircle")
 						.attr("id",nodeCache[i].id+"-cir")
 						.style("title","sb");
 		g.append("text").attr("x",nodeCache[i].cx)
