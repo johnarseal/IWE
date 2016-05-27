@@ -213,7 +213,7 @@
 				<h4 style="margin-top:5px">Resolution</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
-				<button type="button" class="my-btn btn btn-info">Time Trend</button><button id="resDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resClear" type="button" class="my-btn btn btn-default">Clear</button>
+				<button type="button" class="my-btn btn btn-info">Time Trend</button><button id="resolutionDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resolutionClear" type="button" class="my-btn btn btn-default">Clear</button>
 			</div>
 		</div>
 		<div id='res-rate-wrap'></div>
@@ -225,7 +225,7 @@
 				<h4 style="margin-top:5px">Resolve Time</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
-				<button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button type="button" class="my-btn btn btn-default">Cancel</button>
+				<button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" id="resolveTimeDraw" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button type="button" id="resolveTimeClear" class="my-btn btn btn-default">Clear</button>
 			</div>
 		</div>
 		<div id='fix-time-wrap'></div>
@@ -259,67 +259,6 @@ initTimeTotal("#timeTotalChart",timeTotalData);
 initSelectorEvent();
 initWorkflowEvent();
 initImpactEvent();
-
-var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
-$('#fix-time-wrap').css("height",chartHeight);
-$('#fix-time-wrap').highcharts({
-
-        title: {
-            text:null,
-			margin:0
-        },
-        xAxis: {
-            categories: ['0', '1', '50', '1900', '1950', '1999', '2050'],
-            tickmarkPlacement: 'on',
-            title: {
-                enabled: false
-            }
-        },
-        yAxis: {
-            title: {
-                enabled:false
-            },
-            labels: {
-                formatter: function() {
-                    return this.value / 1000;
-                }
-            }
-        },
-        tooltip: {
-            shared: true,
-            valueSuffix: ' millions'
-        },
-		credits: {
-			enabled:false
-		},
-        plotOptions: {
-            area: {
-                stacking: 'normal',
-                lineColor: '#666666',
-                lineWidth: 1,
-                marker: {
-                    lineWidth: 1,
-                    lineColor: '#666666'
-                }
-            }
-        },
-        series: [{
-            name: 'Asia',
-            data: [502, 635, 809, 947, 1402, 3634, 5268]
-        }, {
-            name: 'Africa',
-            data: [106, 107]
-        }, {
-            name: 'Europe',
-            data: [163, 203, 276, 408, 547, 729, 628]
-        }, {
-            name: 'America',
-            data: [18, 31, 54, 156, 339, 818, 1201]
-        }, {
-            name: 'Oceania',
-            data: [2, 2, 2, 6, 13, 30, 46]
-        }]
-});
 
 //console.log(Highcharts.charts[0]);
 </script>

@@ -1,3 +1,55 @@
+function initResTime(){
+	var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
+	$('#fix-time-wrap').css("height",chartHeight);
+	$('#fix-time-wrap').highcharts({
+			chart:{type:"line"},
+			title: {
+				text:null,
+				margin:0
+			},
+			yAxis: {
+				title: {
+					enabled:false
+				},
+				labels: {
+					formatter: function() {
+						return ((this.value) * 100) + "%";
+					}
+				},
+				max:1,
+				plotLines:[{
+					color: '#FF0000',
+					value: 0.9,
+					width: 2
+				}]
+			},
+			tooltip:{
+				shared:true,
+				formatter:function(){
+					var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in' ;
+					$.each(this.points, function () {
+						s += '<br/>' + this.series.name + ': ' +
+							this.x + 'days ';
+					});
+					return s;
+				}
+			},
+			credits: {
+				enabled:false
+			},
+			series: []
+	});
+}
+function initSelTran(){
+	var transition = "";
+	for(i in selectors.tranStr){
+		transition += selectors.tranStr[i] + " "
+	}
+	selectors.transition = transition.substring(0,transition.length-1);
+	if(selectors.transition == ""){
+		delete selectors.transition;
+	}
+}
 function initResRate(){
 
 	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.8) + "px";
@@ -92,15 +144,7 @@ function initResRate(){
 }
 function drawResRate(){
 	
-	var transition = "";
-	for(i in selectors.tranStr){
-		transition += selectors.tranStr[i] + " "
-	}
-	selectors.transition = transition.substring(0,transition.length-1);
-	if(selectors.transition == ""){
-		delete selectors.transition;
-	}
-	
+	initSelTran();
 	
 	$.get(
 		"/api/resrate",
@@ -121,7 +165,6 @@ function drawResRate(){
 					if(chart.series[j].name == seriesData[i].name){
 						oldSeries = chart.options.series[j].data;
 						oldSeries.push(seriesData[i].data);
-						//console.log(oldSeries);
 						chart.series[j].setData(oldSeries,false);
 						break;
 					}
@@ -132,13 +175,31 @@ function drawResRate(){
 		"json"		
 	);
 }
+function drawResTime(){
+	initSelTran();
+
+	var chart = $("#fix-time-wrap").highcharts();
+	$.get(
+		"/api/restime",
+		selectors,
+		function(data){
+			chart.addSeries({data:data});
+		},
+		"json"		
+	);
+}
 function initImpactEvent(){
 	initResRate();
 	drawResRate();
-	$("#resDraw").click(function(){
+	initResTime();
+	drawResTime();
+	$("#resolutionDraw").click(function(){
 		drawResRate();
 	});
-	$("#resClear").click(function(){
+	$("#resolveTimeDraw").click(function(){
+		drawResTime();
+	});
+	$("#resolutionClear").click(function(){
 		var chart = $("#res-rate-wrap").highcharts();           
 		
 		for(var i in chart.series) {
@@ -147,5 +208,5 @@ function initImpactEvent(){
 	
 		chart.redraw();
 	});	
-	
 }
+

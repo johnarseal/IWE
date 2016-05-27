@@ -1,10 +1,10 @@
 // the ts of every node represents the 
 // time gap between its parent and itself
 function parseTree(d){
-	console.log(d);
 	var tagDict = {
 	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO","CLOSED":"CLO"
 	}
+	console.log(d);
 	//build a tree
 	var nodeId = 0;
 	var rr = {"child":{},"tag":"root",id:nodeId++};
@@ -27,8 +27,12 @@ function parseTree(d){
 					oldGap = curNode["child"][curTran]["ts"];
 					newGap = tranAttr["ts"][i];
 					gapDiff = Math.abs(oldGap-newGap);
+					if(tranStr == "ASSIGNED"){
+						console.log(gapDiff);
+						console.log(tranAttr);
+					}
 					// if the gap difference is small, merge
-					if(gapDiff <= oldGap * mergeThres){
+					if(i < tranAttr["ts"].length-1 && gapDiff < tranAttr["ts"][i+1] * mergeThres){
 						break;
 					}
 					else{
@@ -59,6 +63,7 @@ function parseTree(d){
 			}
 		}
 	}
+	console.log(rr);
 	return rr;
 }
 
@@ -177,8 +182,6 @@ function buildScale(svgAttr,r){
         .range([minLineWidth, maxLineWidth]);
 	
 	// directly find the cy of each node
-	console.log(nodeArr);
-	console.log(r);
 	var lastTS = 0;
 	var topCY = svgAttr.paddingH + maxR;
 	var lastCY = topCY;
@@ -195,7 +198,6 @@ function buildScale(svgAttr,r){
 		var maxCY = svgAttr.height - svgAttr.paddingH - bottomMargin - crScale(nodeArr[i].num);
 		lastCY = Math.max(idealCY,minCY);
 		lastCY = Math.min(lastCY,maxCY);
-//		console.log();
 		nodeIndArr[nodeArr[i].id].cy = lastCY;
 		lastTS = nodeArr[i].totalTS;
 	}

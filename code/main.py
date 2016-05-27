@@ -30,6 +30,11 @@ def resrate():
     resRateData = fetchResRate(request.args)
     return json.dumps(resRateData)
     
+@app.route('/api/restime', methods=["GET"])
+def restime():
+    resTimeData = fetchResTime(request.args)
+    return json.dumps(resTimeData)
+    
 @app.route('/debug/<db>/flushsession', methods=["GET"])
 def destroySession(db):
     if db in session:
