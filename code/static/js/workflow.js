@@ -4,7 +4,6 @@ function parseTree(d){
 	var tagDict = {
 	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO","CLOSED":"CLO"
 	}
-	console.log(d);
 	//build a tree
 	var nodeId = 0;
 	var rr = {"child":{},"tag":"root",id:nodeId++};
@@ -16,6 +15,7 @@ function parseTree(d){
 		var endInd = tranArr.length - 1;
 		//iterate through a transition str
 		for (var i in tranArr){
+			i = parseInt(i);
 			var curTran = tranArr[i];
 			// check whether to merge the node
 			// find a node to merge
@@ -27,12 +27,26 @@ function parseTree(d){
 					oldGap = curNode["child"][curTran]["ts"];
 					newGap = tranAttr["ts"][i];
 					gapDiff = Math.abs(oldGap-newGap);
+					var newNextTS;
+					if(i < tranAttr["ts"].length-1){
+						newNextTS = tranAttr["ts"][i+1];
+					}
+					else{
+						newNextTS = 999999;
+					}
+					var nextNode = curNode["child"][curTran];
+					var oldNextTS = 999999;
+					for (var nextStr in nextNode.child){
+						if(nextStr != "END"){
+							oldNextTS = Math.min(nextNode.child[nextStr].ts,oldNextTS);
+						}
+					}
+					var nextMinTS = Math.min(oldNextTS,newNextTS);
 					if(tranStr == "ASSIGNED"){
-						console.log(gapDiff);
-						console.log(tranAttr);
+						console.log(nextMinTS);
 					}
 					// if the gap difference is small, merge
-					if(i < tranAttr["ts"].length-1 && gapDiff < tranAttr["ts"][i+1] * mergeThres){
+					if(gapDiff < nextMinTS * mergeThres){
 						break;
 					}
 					else{
@@ -520,7 +534,6 @@ function drawWorkFlow(d,svgAttr,svgId){
 	$(".nodeTrigger").mousedown(function(event){
 		if(event.button==0){
 			var nodeId = parseInt($(this).attr("id").substr(1));
-			//console.log($(this).attr("id"));
 			if($.inArray(nodeId, activeArr) < 0){
 				return;
 			}
@@ -566,6 +579,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 		activeChildren(0);
 	});
 	$("#wf-cancel").click(function(){
+		selectors.tranStr = new Array();
 		recoverTree();
 	});
 	var oldColor = null;

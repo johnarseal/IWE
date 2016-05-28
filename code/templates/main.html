@@ -240,8 +240,7 @@
 var selectors = {};
 var timeTotalData = {{ selInfo.totalNum|tojson|safe }};
 var wfData = {{ workflowData|tojson|safe }};
-
-
+console.log(wfData);
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 

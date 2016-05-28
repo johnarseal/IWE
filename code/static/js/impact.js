@@ -20,24 +20,40 @@ function initResTime(){
 				plotLines:[{
 					color: '#FF0000',
 					value: 0.9,
-					width: 2
+					width: 2,
+					label:{
+						text:"90%",
+						x:-5
+					}
 				}]
 			},
+			xAxis:{
+				title: {
+					text: 'days',
+					align: 'low',
+					margin:0,
+					offset:20
+				}
+			},
 			tooltip:{
-				shared:true,
 				formatter:function(){
-					var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in' ;
-					$.each(this.points, function () {
-						s += '<br/>' + this.series.name + ': ' +
-							this.x + 'days ';
-					});
+					var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in<br/>'+ this.x + 'days ';
 					return s;
 				}
 			},
 			credits: {
 				enabled:false
 			},
-			series: []
+			series: [],
+			legend: {
+				labelFormatter: function () {
+					var text = this.name,
+					formatted = text.length > 25 ? text.substring(0, 25) + '...' : text;
+
+                    return '<div class="js-ellipse" style="max-width:50px; overflow:hidden" title="' + text + '">' + formatted + '</div>';
+				},
+				useHTML:true
+			}
 	});
 }
 function initSelTran(){
@@ -57,7 +73,12 @@ function initResRate(){
 
 	$('#res-rate-wrap').highcharts({
 		chart: {
-			type: 'bar'
+			type: 'bar',
+			events: {
+                load: function (event) {
+                    $('.js-ellipse').tooltip();
+                }
+            }
 		},
 		title: {
 			text: null,
@@ -81,6 +102,21 @@ function initResRate(){
 				margin:0,
 				offset:20
 			},
+		},
+		xAxis:{
+			categories:[],
+            labels: {
+				formatter: function () {
+					var text = this.value,
+					formatted = text.length > 25 ? text.substring(0, 25) + '...' : text;
+
+                    return '<div class="js-ellipse" style="width:20px; overflow:hidden" title="' + text + '">' + formatted + '</div>';
+				},
+				style: {
+					width: '150px'
+				},
+				useHTML: true
+			}
 		},
 		legend: {
 			reversed: true,
@@ -142,6 +178,18 @@ function initResRate(){
 		}]
 	});
 }
+function parseSelectors(selectors){
+	var retStr = "";
+	for(var s in selectors){
+		if(s != "tranStr"){
+			retStr += selectors[s] + " ";
+		}
+	}
+	if(retStr == ""){
+		retStr = "All";
+	}
+	return retStr;
+}
 function drawResRate(){
 	
 	initSelTran();
@@ -170,6 +218,9 @@ function drawResRate(){
 					}
 				}
 			}
+			var oldCat = chart.xAxis[0].categories;
+			oldCat.push(parseSelectors(selectors));
+			chart.xAxis[0].setCategories(oldCat)
 			chart.redraw();
 		},
 		"json"		
@@ -183,7 +234,8 @@ function drawResTime(){
 		"/api/restime",
 		selectors,
 		function(data){
-			chart.addSeries({data:data});
+			var newName = parseSelectors(selectors);
+			chart.addSeries({data:data,name:newName});
 		},
 		"json"		
 	);

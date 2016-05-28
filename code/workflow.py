@@ -48,9 +48,9 @@ def processWFdata(rawD):
         
     for tran,num in sizeList:
         medianArr = [0,]
-        medianArr.extend([float(x/(divisor)) for x in medianDF[tran].values if x != -1])
+        medianArr.extend([(float(x) / divisor) for x in medianDF[tran].values if x != -1])
         meanArr = [0,]
-        meanArr.extend([float(x/(divisor)) for x in meanDF[tran].values if x != -1])
+        meanArr.extend([(float(x) / divisor) for x in meanDF[tran].values if x != -1])
         rtData[tran] = {"num":num,"ts":medianArr,"meants":meanArr}
         curNum += num
         curStr += 1
