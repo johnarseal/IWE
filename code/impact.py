@@ -7,11 +7,11 @@ def fetchResRate(selectors):
     sql = "SELECT resolution, COUNT(*) FROM iwe_statustran "
     conSql = " WHERE "
     hasKey = False
-    keys = ("bug_severity","priority","product_id","resolution","minDate","maxDate","transition")
+    keys = ("bug_severity","priority","product","resolution","minDate","maxDate","transition")
     
     for key in keys:
         if key in selectors:
-            if selectors[key] == "All" or (key == "product_id" and selectors[key] == '-1'): 
+            if selectors[key] == "All": 
                 continue
             elif key == "minDate":
                 conSql += "ts0 >= '" + selectors[key] + "' AND "
@@ -47,11 +47,11 @@ def fetchResTime(selectors):
     sql = "SELECT UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM iwe_statustran "
     conSql = " WHERE "
     hasKey = False
-    keys = ("bug_severity","priority","product_id","resolution","minDate","maxDate","transition")
+    keys = ("bug_severity","priority","product","resolution","minDate","maxDate","transition")
     
     for key in keys:
         if key in selectors:
-            if selectors[key] == "All" or (key == "product_id" and selectors[key] == '-1'): 
+            if selectors[key] == "All": 
                 continue
             elif key == "minDate":
                 conSql += "ts0 >= '" + selectors[key] + "' AND "

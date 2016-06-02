@@ -90,10 +90,10 @@ def fetchWorkflow(selectors):
     sql = "SELECT transition, " + sqlTS + " FROM iwe_statustran "
     conSql = " WHERE "
     hasKey = False
-    keys = ("bug_severity","priority","product_id","resolution","minDate","maxDate")
+    keys = ("bug_severity","priority","product","resolution","minDate","maxDate")
     for key in keys:
         if key in selectors:
-            if selectors[key] == "All" or (key == "product_id" and selectors[key] == '-1'): 
+            if selectors[key] == "All": 
                 continue
             elif key == "minDate":
                 conSql += "ts0 >= '" + selectors[key] + "' AND "

@@ -16,6 +16,7 @@ function initResTime(){
 						return ((this.value) * 100) + "%";
 					}
 				},
+				tickInterval:0.1,
 				max:1,
 				plotLines:[{
 					color: '#FF0000',

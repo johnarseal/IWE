@@ -37,22 +37,12 @@ function initSelectorEvent(){
 		
 	$(".sel-option").change(function(){
 		$("#totalTimeRefresh").show();
-		if($(this).attr("id")=="sel-product"){
-			if(parseInt($(this).find("option:selected").attr("id")) != -1){
-				selectors.product_id = parseInt($(this).find("option:selected").attr("id"));
-			}
-			else{
-				delete selectors.product_id;
-			}
+		var field = $(this).attr("id").split("-")[1];
+		if($(this).find("option:selected").text() != "All"){
+			selectors[field] = $(this).find("option:selected").text();
 		}
 		else{
-			var field = $(this).attr("id").split("-")[1];
-			if($(this).find("option:selected").text() != "All"){
-				selectors[field] = $(this).find("option:selected").text();
-			}
-			else{
-				delete selectors[field];
-			}
+			delete selectors[field];
 		}
 	});
 	

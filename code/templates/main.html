@@ -13,6 +13,7 @@
 	<script src="{{url_for('static', filename='js/workflow.js')}}"></script>
 	<script src="{{url_for('static', filename='js/selectors.js')}}"></script>
 	<script src="{{url_for('static', filename='js/impact.js')}}"></script>
+	<script src="{{url_for('static', filename='js/timetrend.js')}}"></script>
    <style>
    {% block css %}
    .border-wrap{
@@ -151,7 +152,7 @@
 <div class="col-md-9" style="padding:8px 0px">
 	<div class="border-wrap"><div class="row" style="margin:0px">
 	<div class="panel-box">
-	<div class="panel panel-default" style="margin-top:5px;">
+	<div class="panel panel-default" style="padding-bottom:15px; margin-bottom:0px;margin-top:5px;">
 	   <div class="panel-heading" style="background-color: #EFFEEF;">
 		  <h3 class="panel-title">
 			 SELECTORS
@@ -160,7 +161,7 @@
 	   <div class="panel-body" style="padding:5px;height:500px">
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option id="{{ product.id }}-prod">{{ product.name }}</option>{% endfor %}</select></div>
+					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option>{{ product }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
@@ -192,14 +193,16 @@
 	<div class="workflow-box">
 	<div class="panel panel-default" style="margin-top:5px;">
 	<div class="panel-heading" style="background-color: #EFFEEF; padding:1px">
-	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" id="wfRedraw" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
+	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button id="workflowTT" type="button" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button type="button" id="wfRedraw" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
 	</div>
 	<div id="svg-wrap" oncontextmenu="return false;"></div>
 	</div>
 	</div>
 	</div></div>
+	<div id="timeTrendWrap">
+	</div>
 </div>
-<div class="col-md-3" style="padding:8px 2px">
+<div class="col-md-3" style="margin:0px;padding:8px 2px">
 <div class="border-wrap">
 <div class="panel panel-default" style="margin-top:10px;">
 	<div class="panel-heading" style="background-color:#FFCFCF;">
@@ -213,7 +216,7 @@
 				<h4 style="margin-top:5px">Resolution</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
-				<button type="button" class="my-btn btn btn-info">Time Trend</button><button id="resolutionDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resolutionClear" type="button" class="my-btn btn btn-default">Clear</button>
+				<button type="button" id="resrateTT" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button id="resolutionDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resolutionClear" type="button" class="my-btn btn btn-default">Clear</button>
 			</div>
 		</div>
 		<div id='res-rate-wrap'></div>
@@ -225,7 +228,7 @@
 				<h4 style="margin-top:5px">Resolve Time</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
-				<button type="button" class="my-btn btn btn-info">Time Trend</button><button type="button" id="resolveTimeDraw" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button type="button" id="resolveTimeClear" class="my-btn btn btn-default">Clear</button>
+				<button type="button" id="restimeTT" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button type="button" id="resolveTimeDraw" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button type="button" id="resolveTimeClear" class="my-btn btn btn-default">Clear</button>
 			</div>
 		</div>
 		<div id='fix-time-wrap'></div>
@@ -258,7 +261,8 @@ initTimeTotal("#timeTotalChart",timeTotalData);
 initSelectorEvent();
 initWorkflowEvent();
 initImpactEvent();
-
+timeTrendInit(timeTotalData);
+initTimeTrendEvent();
 //console.log(Highcharts.charts[0]);
 </script>
 {% endblock %}

@@ -3,6 +3,7 @@ from settings import *
 from selectors import *
 from workflow import *
 from impact import *
+from timetrend import *
 import os,json
 app = Flask(__name__)
 
@@ -34,6 +35,21 @@ def resrate():
 def restime():
     resTimeData = fetchResTime(request.args)
     return json.dumps(resTimeData)
+    
+@app.route('/api/timetrend/wf', methods=["GET"])
+def ttwf():
+    ttWFData = fetchttWF(request.args)
+    return json.dumps(ttWFData)
+
+@app.route('/api/timetrend/resrate', methods=["GET"])
+def ttresrate():
+    ttRRData = fetchttResRate(request.args)
+    return json.dumps(ttRRData)
+
+@app.route('/api/timetrend/restime', methods=["GET"])
+def ttrestime():
+    ttRTData = fetchttResTime(request.args)    
+    return json.dumps(ttRTData)
     
 @app.route('/debug/<db>/flushsession', methods=["GET"])
 def destroySession(db):

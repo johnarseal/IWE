@@ -10,12 +10,12 @@ def selectorsInit(db):
     
     # fetch product
     sql = """
-        SELECT `name`,`id` FROM products ORDER BY `name`;
+        SELECT `name` FROM products ORDER BY `name`;
     """
     cursor.execute(sql)
     products = cursor.fetchall()
-    productInfo = [{"name":"All","id":-1}]
-    productInfo.extend([{"name":x[0],"id":x[1]} for x in products])
+    productInfo = ["All",]
+    productInfo.extend([x[0] for x in products if x[0] != ""])
     
     # fetch resolution
     sql = """
@@ -78,10 +78,10 @@ def fetchTimeTotal(selectors):
     """
     conSql = " WHERE "
     hasKey = False
-    keys = ("bug_severity","priority","product_id","resolution")
+    keys = ("bug_severity","priority","product","resolution")
     for key in keys:
         if key in selectors:
-            if selectors[key] == "All" or (key == "product_id" and selectors[key] == '-1'): 
+            if selectors[key] == "All": 
                 continue
             hasKey = True
             conSql += key + " = '" + selectors[key] + "' AND "
