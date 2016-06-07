@@ -55,7 +55,7 @@ def selectorsInit(db):
     """
     
     # status
-    rawArr = ("UNCONFIRM","NEW","ASSIGNED","REOPENED","RESOLVED","VERIFIED","NEEDINFO")
+    rawArr = ("UNCONFIRMED","NEW","ASSIGNED","REOPENED","RESOLVED","VERIFIED","NEEDINFO")
     statusInfo = []
     statusNum = len(rawArr)
     for i in range(0,statusNum,2):

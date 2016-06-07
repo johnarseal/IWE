@@ -197,26 +197,26 @@
 					<div class="sel-hdr col-md-4">Priority</div><div class="sel-selection col-md-8"><select id="sel-priority" class="sel-option">{% for priority in selInfo.priorities %}<option>{{ priority }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
-			<div class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
+			<div id="sel-startswidth" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+					<div class="sel-hdr col-md-6">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
 					{% for status in pair if status != None %}
-					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input type="checkbox"/></span>{{ status }}</div>
+					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkTrigger checkItem" type="checkbox"/></span><span class="checkTag">{{ status }}</span></div>
 					{% endfor %}
 				</div>
 				{% endfor %}
 			</div>
-			<div class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
+			<div id="sel-includes" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Includes Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+					<div class="sel-hdr col-md-6">Includes Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
 					{% for status in pair if status != None %}
-					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input type="checkbox"/></span>{{ status }}</div>
+					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkTrigger checkItem" type="checkbox"/></span><span class="checkTag">{{ status }}</span></div>
 					{% endfor %}
 				</div>
 				{% endfor %}
@@ -300,7 +300,6 @@
 <script>
 var selectors = {};
 var dateRange = {{ selInfo.dateRange|tojson|safe }};
-console.log(dateRange);
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
@@ -315,36 +314,13 @@ $("#timeTotalChart").css("height",height + "px");
 
 //initTimeTotal("#timeTotalChart",timeTotalData);
 
-//initSelectorEvent();
+initSelectorEvent();
 //initWorkflowEvent();
 //initImpactEvent();
 //timeTrendInit(timeTotalData);
 //initTimeTrendEvent();
 //console.log(Highcharts.charts[0]);
-$(".checkall").click(function(){
-	if($(this).prop("checked")){
-		$(this).parents(".checkrow").nextAll().find("input").attr("disabled",true);
-	}
-	else{
-		$(this).parents(".checkrow").nextAll().find("input").attr("disabled",false);
-	}
-});
-$(".createDate").datepicker({
-	changeMonth: true,
-	changeYear:true,
-	dateFormat: "yy-mm-dd",
-	minDate:dateRange.createRange[0],
-	maxDate:dateRange.createRange[1]
-	
-});
-$(".resolveDate").datepicker({
-	changeMonth: true,
-	changeYear:true,
-	dateFormat: "yy-mm-dd",
-	minDate:dateRange.resolveRange[0],
-	maxDate:dateRange.resolveRange[1]
-	
-});
+
 </script>
 {% endblock %}
 </body>

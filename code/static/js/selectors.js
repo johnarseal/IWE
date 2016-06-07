@@ -34,9 +34,32 @@ function initTimeTotal(chartId,data){
 }
 
 function initSelectorEvent(){
+	$(".checkall").click(function(){
+		if($(this).prop("checked")){
+			$(this).parents(".checkrow").nextAll().find("input").attr("disabled",true);
+		}
+		else{
+			$(this).parents(".checkrow").nextAll().find("input").attr("disabled",false);
+		}
+	});
+	$(".createDate").datepicker({
+		changeMonth: true,
+		changeYear:true,
+		dateFormat: "yy-mm-dd",
+		minDate:dateRange.createRange[0],
+		maxDate:dateRange.createRange[1]
 		
+	});
+	$(".resolveDate").datepicker({
+		changeMonth: true,
+		changeYear:true,
+		dateFormat: "yy-mm-dd",
+		minDate:dateRange.resolveRange[0],
+		maxDate:dateRange.resolveRange[1]
+		
+	});
+	
 	$(".sel-option").change(function(){
-		$("#totalTimeRefresh").show();
 		var field = $(this).attr("id").split("-")[1];
 		if($(this).find("option:selected").text() != "All"){
 			selectors[field] = $(this).find("option:selected").text();
@@ -45,7 +68,18 @@ function initSelectorEvent(){
 			delete selectors[field];
 		}
 	});
+	$(".checkTrigger").click(function(){
+		var field = $(this).parents(".selector-wrap").attr("id").split("-")[1];
+		var tag = $(this).parent().next().html();
+		$(this).parents(".selector-wrap").find(".checkItem").each(function(){
+			if($(this).prop("checked") && !$(this).attr("disabled")){
+				console.log($(this).parent().next().html());
+			}
+		});
+	});
 	
+	
+	/*
 	$("#totalTimeRefresh").click(function(){
 		redrawTimeTotal();
 		$("#totalTimeRefresh").hide();
@@ -67,7 +101,7 @@ function initSelectorEvent(){
 		var maxDate = $("input[class='highcharts-range-selector'][name='max']").val() + "-31";
 		selectors.minDate = minDate;
 		selectors.maxDate = maxDate;
-	});
+	});*/
 }
 
 function redrawTimeTotal(){
