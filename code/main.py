@@ -13,8 +13,10 @@ def index(db):
     lastS = str(dict(session))
     session["curDb"] = db
     selInfo = getSelectors(db)
-    workflowData = getWorkflow(db)
-    return render_template('main.html', selInfo=selInfo, workflowData=workflowData)    
+    #workflowData = getWorkflow(db)
+    #return render_template('main.html', selInfo=selInfo, workflowData=workflowData)
+    print selInfo
+    return render_template('main.html', selInfo=selInfo)    
     
 @app.route('/api/timetotal', methods=["GET"])
 def timetotal():

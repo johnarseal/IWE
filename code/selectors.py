@@ -45,14 +45,34 @@ def selectorsInit(db):
     priorInfo.extend([x[0] for x in priority if x[0] != ""])
     
     # total number of bugs over time
-    sql = """
-        SELECT DATE_FORMAT(ts0,"%Y-%m"),COUNT(*) FROM iwe_statustran GROUP BY DATE_FORMAT(ts0,"%Y-%m");
     """
+    sql = "
+        SELECT DATE_FORMAT(ts0,"%Y-%m"),COUNT(*) FROM iwe_statustran GROUP BY DATE_FORMAT(ts0,"%Y-%m");
+    "
     cursor.execute(sql)
     totalNum = cursor.fetchall()
     totalInfo = [[time.mktime(time.strptime(x[0]+"-01",'%Y-%m-%d')) * 1000,x[1]] for x in totalNum]
+    """
     
-    return {"products":productInfo, "resolutions":resInfo, "severities":sevInfo, "priorities":priorInfo, "totalNum":totalInfo}
+    # status
+    rawArr = ("UNCONFIRM","NEW","ASSIGNED","REOPENED","RESOLVED","VERIFIED","NEEDINFO")
+    statusInfo = []
+    statusNum = len(rawArr)
+    for i in range(0,statusNum,2):
+        if i + 1 < statusNum:
+            statusInfo.append([rawArr[i],rawArr[i+1]])
+        else:
+            statusInfo.append([rawArr[i],None])
+            
+    # mindate,maxdate
+    sql = """
+    SELECT DATE_FORMAT(MIN(ts0),"%Y-%m-%d"),DATE_FORMAT(MAX(ts0),"%Y-%m-%d"),DATE_FORMAT(MIN(resolve_time),"%Y-%m-%d"),DATE_FORMAT(MAX(resolve_time),"%Y-%m-%d") FROM iwe_statustran;
+    """
+    cursor.execute(sql)
+    rawD = cursor.fetchall()[0]
+    dateRange = {"createRange":[rawD[0],rawD[1]],"resolveRange":[rawD[2],rawD[3]]}
+    
+    return {"products":productInfo, "resolutions":resInfo, "severities":sevInfo, "priorities":priorInfo, "statusInfo":statusInfo, "dateRange":dateRange}
 
 
 # get the data from selectors, first try session, if not cached then try database    

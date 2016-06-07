@@ -10,6 +10,8 @@
 	<script src="{{url_for('static', filename='js/lib/d3.min.js')}}"></script>
 	<script type="text/javascript" src="{{url_for('static', filename='js/lib/Highstock-4.2.5/js/highstock.js')}}"></script>
 	<script type="text/javascript" src="{{url_for('static', filename='js/lib/Highstock-4.2.5/js/highcharts-more.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/lib/jquery-ui-1.11.4/jquery-ui.min.js')}}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='js/lib/jquery-ui-1.11.4/jquery-ui.min.css') }}">
 	<script src="{{url_for('static', filename='js/workflow.js')}}"></script>
 	<script src="{{url_for('static', filename='js/selectors.js')}}"></script>
 	<script src="{{url_for('static', filename='js/impact.js')}}"></script>
@@ -20,7 +22,7 @@
 	
    }
    #svg-wrap{
-	height:500px;
+	height:520px;
 	min-height: 20px;
 	background-color: #fcfcfc;
 	border: 1px solid #e3e3e3;
@@ -123,6 +125,22 @@
 	#totalTimeRefresh{
 		display:none
 	}
+	.checkwrap{
+		padding:0px 10px;
+	}
+	.sel-ent-wrap{
+		font-size:14px;
+		padding:0px;
+	}
+	.checkrow{
+		padding-left:5px;
+		padding-bottom:5px;
+	}
+	.sel-inputDate{
+		width:100px;
+		height:22px;
+		margin-bottom:3px;
+	}
 	{% endblock %}
    </style>
 </head>
@@ -152,13 +170,13 @@
 <div class="col-md-9" style="padding:8px 0px">
 	<div class="border-wrap"><div class="row" style="margin:0px">
 	<div class="panel-box">
-	<div class="panel panel-default" style="padding-bottom:15px; margin-bottom:0px;margin-top:5px;">
+	<div class="panel panel-default" style="margin-bottom:0px;margin-top:5px;">
 	   <div class="panel-heading" style="background-color: #EFFEEF;">
 		  <h3 class="panel-title">
 			 SELECTORS
 		  </h3>
 	   </div>
-	   <div class="panel-body" style="padding:5px;height:500px">
+	   <div class="panel-body" style="padding:5px">
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
 					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option>{{ product }}</option>{% endfor %}</select></div>
@@ -179,15 +197,55 @@
 					<div class="sel-hdr col-md-4">Priority</div><div class="sel-selection col-md-8"><select id="sel-priority" class="sel-option">{% for priority in selInfo.priorities %}<option>{{ priority }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
+			<div class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
+				<div class="checkrow row" style="margin:0px;padding-top:6px;">
+					<div class="sel-hdr col-md-6">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+				</div>
+				{% for pair in selInfo.statusInfo %}
+				<div class="checkrow row" style="margin:0px">
+					{% for status in pair if status != None %}
+					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input type="checkbox"/></span>{{ status }}</div>
+					{% endfor %}
+				</div>
+				{% endfor %}
+			</div>
+			<div class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
+				<div class="checkrow row" style="margin:0px;padding-top:6px;">
+					<div class="sel-hdr col-md-6">Includes Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+				</div>
+				{% for pair in selInfo.statusInfo %}
+				<div class="checkrow row" style="margin:0px">
+					{% for status in pair if status != None %}
+					<div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input type="checkbox"/></span>{{ status }}</div>
+					{% endfor %}
+				</div>
+				{% endfor %}
+			</div>
+			<div class="selector-wrap">
+				<div class="checkrow row" style="margin:0px;padding-top:6px;">
+					<div class="sel-hdr col-md-6">Create Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+				</div>
+				<div class="checkrow row" style="margin:0px">
+					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input class="sel-inputDate createDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input class="sel-inputDate createDate" type="text"/></span></div>
+				</div>
+			</div>
+			<div class="selector-wrap">
+				<div class="checkrow row" style="margin:0px;padding-top:6px;">
+					<div class="sel-hdr col-md-6">Resolve Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall" type="checkbox"/></span>All</div>
+				</div>
+				<div class="checkrow row" style="margin:0px">
+					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input class="sel-inputDate resolveDate" type="text"/></span></div>
+				</div>
+			</div>
+			<!--
 			<div class="selector-wrap" id="timeTotalSel">
 				<div class="row" style="margin:0px;box-sizing: border-box;">
 				<div class="sel-header">Created Bugs Over Time</div>
 				<div style="float:right;margin-right:10px;margin-top:5px"><img id="totalTimeRefresh" class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
 				</div>
 				<div id="timeTotalChart"></div>
-			</div>
+			</div>-->
 	   </div>
-
 	</div>
 	</div>
 	<div class="workflow-box">
@@ -241,9 +299,8 @@
 {% block jsblock %}
 <script>
 var selectors = {};
-var timeTotalData = {{ selInfo.totalNum|tojson|safe }};
-var wfData = {{ workflowData|tojson|safe }};
-console.log(wfData);
+var dateRange = {{ selInfo.dateRange|tojson|safe }};
+console.log(dateRange);
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
@@ -251,19 +308,43 @@ var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
-drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
+//drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
 
 var height = parseInt($("#timeTotalChart").css("width")) * 4 / 5;
 $("#timeTotalChart").css("height",height + "px");
 
-initTimeTotal("#timeTotalChart",timeTotalData);
+//initTimeTotal("#timeTotalChart",timeTotalData);
 
-initSelectorEvent();
-initWorkflowEvent();
-initImpactEvent();
-timeTrendInit(timeTotalData);
-initTimeTrendEvent();
+//initSelectorEvent();
+//initWorkflowEvent();
+//initImpactEvent();
+//timeTrendInit(timeTotalData);
+//initTimeTrendEvent();
 //console.log(Highcharts.charts[0]);
+$(".checkall").click(function(){
+	if($(this).prop("checked")){
+		$(this).parents(".checkrow").nextAll().find("input").attr("disabled",true);
+	}
+	else{
+		$(this).parents(".checkrow").nextAll().find("input").attr("disabled",false);
+	}
+});
+$(".createDate").datepicker({
+	changeMonth: true,
+	changeYear:true,
+	dateFormat: "yy-mm-dd",
+	minDate:dateRange.createRange[0],
+	maxDate:dateRange.createRange[1]
+	
+});
+$(".resolveDate").datepicker({
+	changeMonth: true,
+	changeYear:true,
+	dateFormat: "yy-mm-dd",
+	minDate:dateRange.resolveRange[0],
+	maxDate:dateRange.resolveRange[1]
+	
+});
 </script>
 {% endblock %}
 </body>
