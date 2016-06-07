@@ -42,9 +42,6 @@ function parseTree(d){
 						}
 					}
 					var nextMinTS = Math.min(oldNextTS,newNextTS);
-					if(tranStr == "ASSIGNED"){
-						console.log(nextMinTS);
-					}
 					// if the gap difference is small, merge
 					if(gapDiff < nextMinTS * mergeThres){
 						break;
@@ -77,7 +74,6 @@ function parseTree(d){
 			}
 		}
 	}
-	console.log(rr);
 	return rr;
 }
 
@@ -606,12 +602,15 @@ function drawWorkFlow(d,svgAttr,svgId){
 function initWorkflowEvent(){
 	
 	$("#wfRedraw").click(function(){
+		console.log(selectors);
 		$.get(
 			"/api/workflow",
 			selectors,
 			function(data){
 				$("#svg-wrap").html("");
-				drawWorkFlow(data,svgWorkFlowAttr,"#svg-wrap");
+				if(data != null){
+					drawWorkFlow(data,svgWorkFlowAttr,"#svg-wrap");
+				}
 			},
 			"json"
 		);

@@ -70,14 +70,40 @@ function initSelectorEvent(){
 	});
 	$(".checkTrigger").click(function(){
 		var field = $(this).parents(".selector-wrap").attr("id").split("-")[1];
-		var tag = $(this).parent().next().html();
+		var tmpArr = new Array();
 		$(this).parents(".selector-wrap").find(".checkItem").each(function(){
 			if($(this).prop("checked") && !$(this).attr("disabled")){
-				console.log($(this).parent().next().html());
+				var tag = $(this).parent().next().html();
+				tmpArr.push(tag);
 			}
 		});
+		if(tmpArr.length == 0){
+			delete selectors[field];
+		}
+		else{
+			selectors[field] = tmpArr;
+		}
 	});
-	
+	$(".sel-inputDate").change(function(){
+		var field = $(this).attr("id");
+		selectors[field] = $(this).val();
+		console.log(selectors);
+	});
+	$(".allInputDate").click(function(){
+		if($(this).prop("checked")){
+			$(this).parents(".checkrow").next().find("input").each(function(){
+				var field = $(this).attr("id");
+				delete selectors[field];
+			});
+		}
+		else{
+			$(this).parents(".checkrow").next().find("input").each(function(){
+				var field = $(this).attr("id");
+				selectors[field] = $(this).val();
+			});			
+		}
+		console.log(selectors);
+	});
 	
 	/*
 	$("#totalTimeRefresh").click(function(){
