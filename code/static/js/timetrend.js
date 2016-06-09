@@ -7,7 +7,8 @@ function timeTrendInit(data){
 			{
                 name : 'total',
                 data: data,
-				yAxis:"workflow"
+				yAxis:"workflow",
+				dataGrouping:{approximation:"sum"}
             }
 		],
 		navigator:	{
@@ -20,10 +21,11 @@ function timeTrendInit(data){
 			{id:"workflow"},
 			{id:"resRate",min:0,max:1},
 			{id:"resTime"}
-		]/*,
-		tooltip:{
-			xDateFormat:"%b,%Y"
-		}*/
+		],
+		legend:{
+			enabled:true,
+			margin:0
+		}
     });
 }
 function initSelTran(){
@@ -59,6 +61,15 @@ function initTimeTrendEvent(){
 			},
 			"json"		
 		);
-		
 	});
+	$("#timetrend-clear").click(function(){
+		var chart = $("#timeTrendWrap").highcharts();           
+		
+		var seriesLen = chart.series.length;
+		while(seriesLen--){
+			chart.series[seriesLen].remove();
+		}
+	
+		chart.redraw();
+	});	
 }

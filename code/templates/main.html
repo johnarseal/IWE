@@ -257,6 +257,7 @@
 	</div>
 	</div>
 	</div></div>
+	<div style="text-align:center;font-size:20px;">Time Trend<button type="button" id="timetrend-clear" class="my-btn btn btn-default" style="margin-left:20px">Clear</button></div>
 	<div id="timeTrendWrap">
 	</div>
 </div>
@@ -301,7 +302,10 @@
 var selectors = {};
 var dateRange = {{ selInfo.dateRange|tojson|safe }};
 var wfData = {{ workflowData|tojson|safe }};
-
+var resrateData = {{ resrateData|tojson|safe }};
+var resolution = {{ selInfo.resolutions|tojson|safe }};
+var resTimeData = {{ resTimeData|tojson|safe }};
+var timeTotalData = {{ ttWFData|tojson|safe }};
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
@@ -317,9 +321,9 @@ $("#timeTotalChart").css("height",height + "px");
 initSelectorEvent();
 initWorkflowEvent();
 drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
-//initImpactEvent();
-//timeTrendInit(timeTotalData);
-//initTimeTrendEvent();
+initImpactEvent(resrateData,resolution,resTimeData);
+timeTrendInit(timeTotalData);
+initTimeTrendEvent();
 //console.log(Highcharts.charts[0]);
 
 </script>

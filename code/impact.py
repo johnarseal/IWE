@@ -1,34 +1,15 @@
 from settings import *
 from flask import session
 import time
+from sqlconstruct import *
 
 def fetchResRate(selectors):
     
     sql = "SELECT resolution, COUNT(*) FROM iwe_statustran "
-    conSql = " WHERE "
-    hasKey = False
-    keys = ("bug_severity","priority","product","resolution","minDate","maxDate","transition")
-    
-    for key in keys:
-        if key in selectors:
-            if selectors[key] == "All": 
-                continue
-            elif key == "minDate":
-                conSql += "ts0 >= '" + selectors[key] + "' AND "
-            elif key == "maxDate":
-                conSql += "ts0 <= '" + selectors[key] + "' AND "
-            elif key == "transition":
-                conSql += "transition LIKE '" + selectors[key] + "%' AND "
-            else:
-                conSql += key + " = '" + selectors[key] + "' AND "
-            hasKey = True
-            
-    if hasKey:
-        sql += conSql[:-4]
-    
+    conSql = buildSQL(selectors)
+    if conSql != None:
+        sql += conSql        
     sql += " GROUP BY resolution"
-            
-    
     cursor = conDB(session["curDb"])
     cursor.execute(sql)
     rawD = list(cursor.fetchall())
@@ -39,33 +20,14 @@ def fetchResRate(selectors):
         else:
             retD.append(row)
     
-    
     return retD     
                    
 def fetchResTime(selectors):
 
     sql = "SELECT UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM iwe_statustran "
-    conSql = " WHERE "
-    hasKey = False
-    keys = ("bug_severity","priority","product","resolution","minDate","maxDate","transition")
-    
-    for key in keys:
-        if key in selectors:
-            if selectors[key] == "All": 
-                continue
-            elif key == "minDate":
-                conSql += "ts0 >= '" + selectors[key] + "' AND "
-            elif key == "maxDate":
-                conSql += "ts0 <= '" + selectors[key] + "' AND "
-            elif key == "transition":
-                conSql += "transition LIKE '" + selectors[key] + "%' AND "
-            else:
-                conSql += key + " = '" + selectors[key] + "' AND "
-            hasKey = True
-            
-    if hasKey:
-        sql += conSql[:-4]
-    
+    conSql = buildSQL(selectors)
+    if conSql != None:
+        sql += conSql    
     sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0)"
     cursor = conDB(session["curDb"])
     cursor.execute(sql)    

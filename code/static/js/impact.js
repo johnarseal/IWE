@@ -1,4 +1,4 @@
-function initResTime(){
+function initResTime(data){
 	var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 	$('#fix-time-wrap').css("height",chartHeight);
 	$('#fix-time-wrap').highcharts({
@@ -45,7 +45,7 @@ function initResTime(){
 			credits: {
 				enabled:false
 			},
-			series: [],
+			series: [{data:data,name:"All"}],
 			legend: {
 				labelFormatter: function () {
 					var text = this.name,
@@ -67,11 +67,40 @@ function initSelTran(){
 		delete selectors.transition;
 	}
 }
-function initResRate(){
+function initResRate(rrData,resolution){
 
 	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.8) + "px";
 	$('#res-rate-wrap').css("height",chartHeight)
-
+	
+	// process the data
+	var totalNum = 0;
+	for(var i in rrData){
+		totalNum += rrData[i][1];
+	}
+	var rrDict = {}
+	for(var i in rrData){
+		rrDict[rrData[i][0]] = parseFloat((rrData[i][1]/totalNum));
+	}
+	var resTag = resolution.slice(0);
+	resTag.shift();
+	resTag.unshift("NONE");
+	var resColor = {NONE:"#7cb5ec",EXPIRED:"#434348",WORKSFORME:"#2b908f",INCOMPLETE:"#f7a35c",INVALID:"#8085e9",MOVED:"#f15c80",WONTFIX:"#e4d354",DUPLICATE:"#EE0000",FIXED:"#90ed7d"};
+	var dataSeries = new Array();
+	var fixTmp;
+	for (i in resTag){
+		var res = resTag[i];
+		if (res == "FIXED"){
+			fixTmp = {name:res,color:resColor[res],data:[rrDict[res]]};
+		}
+		else{
+			dataSeries.push({name:res,color:resColor[res],data:[rrDict[res]]});
+		}
+	}
+	dataSeries.push(fixTmp);
+	// set categories
+	var cat = parseSelectors(selectors);
+	
+	console.log(dataSeries);
 	$('#res-rate-wrap').highcharts({
 		chart: {
 			type: 'bar',
@@ -84,11 +113,6 @@ function initResRate(){
 		title: {
 			text: null,
 			margin:0
-		},
-		xAxis:{
-			labels:{
-				enabled:false
-			}
 		},
 		tooltip:{
 			formatter: function () {
@@ -105,7 +129,7 @@ function initResRate(){
 			},
 		},
 		xAxis:{
-			categories:[],
+			categories:[cat],
             labels: {
 				formatter: function () {
 					var text = this.value,
@@ -132,51 +156,7 @@ function initResRate(){
 		credits: {
 		  enabled:false
 		},
-		series: [{
-		   name: "NONE",
-				data: [],
-				color:"#7cb5ec"
-		},
-		{
-			name: "EXPIRED",
-				data: [],
-				color:"#434348"
-		},
-		{
-			name: "WORKSFORME",
-				data: [],
-				color:"#2b908f"
-		},
-		{
-			name: "INCOMPLETE",
-				data: [],
-				color:"#f7a35c"
-		},
-		{
-			name: "INVALID",
-				data: [],
-				color:"#8085e9"
-		},
-		{
-			name: "MOVED",
-				data: [],
-				color:"#f15c80"
-		},
-		{
-			name: "WONTFIX",
-				data: [],
-				color:"#e4d354"
-		},
-		{
-			name: "DUPLICATE",
-				data: [],
-				color:"#EE0000"
-		},
-		{
-			name: 'FIXED',
-				data: [],
-				color:"#90ed7d"
-		}]
+		series: dataSeries
 	});
 }
 function parseSelectors(selectors){
@@ -206,17 +186,24 @@ function drawResRate(){
 				totalNum += data[i][1];
 			}
 			for(var i in data){
-					seriesData.push({name:data[i][0],data:parseFloat((data[i][1]/totalNum))});
+				seriesData.push({name:data[i][0],data:parseFloat((data[i][1]/totalNum))});
 			}
 			//var oldSeries = chart.series;
-			for(var i in seriesData){
-				for(var j in chart.series){
+			for(var j in chart.series){
+				var hasKey = false;
+				for(i in seriesData){
 					if(chart.series[j].name == seriesData[i].name){
 						oldSeries = chart.options.series[j].data;
 						oldSeries.push(seriesData[i].data);
 						chart.series[j].setData(oldSeries,false);
+						hasKey = true;
 						break;
 					}
+				}
+				if(!hasKey){
+					oldSeries = chart.options.series[j].data;
+					oldSeries.push(0);
+					chart.series[j].setData(oldSeries,false);
 				}
 			}
 			var oldCat = chart.xAxis[0].categories;
@@ -241,11 +228,9 @@ function drawResTime(){
 		"json"		
 	);
 }
-function initImpactEvent(){
-	initResRate();
-	drawResRate();
-	initResTime();
-	drawResTime();
+function initImpactEvent(rrData,resolution,resTimeData){
+	initResRate(rrData,resolution);
+	initResTime(resTimeData);
 	$("#resolutionDraw").click(function(){
 		drawResRate();
 	});

@@ -577,6 +577,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 	$("#wf-cancel").click(function(){
 		selectors.tranStr = new Array();
 		recoverTree();
+		delete selectors["transition"];
 	});
 	var oldColor = null;
 	$(".nodeTrigger").mouseenter(function(){
@@ -611,6 +612,7 @@ function initWorkflowEvent(){
 				if(data != null){
 					drawWorkFlow(data,svgWorkFlowAttr,"#svg-wrap");
 				}
+				delete selectors["transition"];
 			},
 			"json"
 		);

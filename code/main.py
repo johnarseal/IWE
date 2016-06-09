@@ -14,7 +14,10 @@ def index(db):
     session["curDb"] = db
     selInfo = getSelectors(db)
     workflowData = getWorkflow(db)
-    return render_template('main.html', selInfo=selInfo,workflowData=workflowData)    
+    resrateData = fetchResRate([])
+    resTimeData = fetchResTime([])
+    ttWFData = fetchttWF([])
+    return render_template('main.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData)    
     
 @app.route('/api/timetotal', methods=["GET"])
 def timetotal():

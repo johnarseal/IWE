@@ -1,6 +1,7 @@
 from settings import *
 from flask import session
 import time
+from sqlconstruct import *
 
 def fetchttWF(selectors):
     
@@ -9,23 +10,9 @@ def fetchttWF(selectors):
     sql = """
         SELECT DATE_FORMAT(ts0,"%Y-%m-%d"),COUNT(*) FROM iwe_statustran
     """
-    conSql = " WHERE "
-    hasKey = False
-    keys = ("bug_severity","priority","product","resolution","transition")
-    
-    for key in keys:
-        if key in selectors:
-            if selectors[key] == "All": 
-                continue
-            elif key == "transition":
-                conSql += "transition LIKE '" + selectors[key] + "%' AND "
-            else:
-                conSql += key + " = '" + selectors[key] + "' AND "
-            hasKey = True
-            
-    if hasKey:
-        sql += conSql[:-4]
-    
+    conSql = buildSQL(selectors)
+    if conSql != None:
+        sql += conSql   
     sql += """ 
         GROUP BY DATE_FORMAT(ts0,"%Y-%m-%d")
     """
@@ -41,27 +28,14 @@ def fetchttWF(selectors):
 def fetchttResRate(selectors):
 
     cursor = conDB(session["curDb"])
-    
-    conSql = " WHERE "
     gbSQL = " GROUP BY DATE_FORMAT(ts0,'%Y-%m-%d')"
-    hasKey = False
-    keys = ("bug_severity","priority","product","transition")
-    for key in keys:
-        if key in selectors:
-            if selectors[key] == "All": 
-                continue
-            elif key == "transition":
-                conSql += "transition LIKE '" + selectors[key] + "%' AND "
-            else:
-                conSql += key + " = '" + selectors[key] + "' AND "
-            hasKey = True
-    
     # fetch the total data
     sql = """
     SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),COUNT(*) FROM iwe_statustran 
     """        
-    if hasKey:
-        sql += conSql[:-4]
+    conSql = buildSQL(selectors)
+    if conSql != None:
+        sql += conSql    
     sql += gbSQL
     cursor.execute(sql)
     totalD = list(cursor.fetchall())
@@ -70,8 +44,8 @@ def fetchttResRate(selectors):
     sql = """
     SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),COUNT(*) FROM iwe_statustran 
     """
-    if hasKey:
-        sql += conSql
+    if conSql != None:
+        sql += conSql    
         sql += " resolution = 'FIXED'"
     else:
         sql += " WHERE resolution = 'FIXED' "
@@ -95,35 +69,27 @@ def fetchttResTime(selectors):
 
     cursor = conDB(session["curDb"])
     
-    conSql = " WHERE "
-    hasKey = False
-    keys = ("bug_severity","priority","product","resolution","transition")
-    for key in keys:
-        if key in selectors:
-            if selectors[key] == "All": 
-                continue
-            elif key == "transition":
-                conSql += "transition LIKE '" + selectors[key] + "%' AND "
-            else:
-                conSql += key + " = '" + selectors[key] + "' AND "
-            hasKey = True
-    
     # fetch the data
     sql = """
     SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM iwe_statustran 
     """        
-
-    sql += conSql + " resolve_time IS NOT NULL"
+    conSql = buildSQL(selectors)
+    if conSql != None:
+        sql += conSql + " AND resolve_time IS NOT NULL"
+    else:
+        sql += " WHERE resolve_time IS NOT NULL"
+    sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0)"
     cursor.execute(sql)
     rawD = list(cursor.fetchall())
     rawDict = {}
     divisor = 24 * 3600
     for row in rawD:
+        days = row[1] / divisor
         if row[0] not in rawDict:
-            days = row[1] / divisor
             rawDict[row[0]] = [days]
         else:
             rawDict[row[0]].append(days)
+
             
     retD = []
     for ts in rawDict:
