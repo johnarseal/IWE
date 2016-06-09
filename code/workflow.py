@@ -1,7 +1,5 @@
 from settings import *
 import time
-import numpy as np
-import pandas as pd
 from flask import session
 from sqlconstruct import *
 
@@ -15,54 +13,51 @@ UNIX_TIMESTAMP(ts5)- UNIX_TIMESTAMP(ts4)
 def processWFdata(rawD):
     data = list(rawD)
     
-    # init pandas dataframe
-    df = pd.DataFrame(data)
-    
-    # data frame contains the median info
-    medianDF = df.groupby(df[0]).median().T
-    medianDF = medianDF.fillna(-1)
-    
-    # data frame contains the number info
-    sizeSeries = df.groupby(df[0]).size()
-   
-    # data frame contains the mean info
-    meanDF = df.groupby(df[0]).mean().T
-    meanDF = meanDF.fillna(-1)
-    
-    # start to process the data
+    # do the group by to prepare the rawDict
+    rawDict = {}
+    for row in data:
+        if row[0] not in rawDict:
+            rawDict[row[0]] = [[],[],[],[],[]]
+        for i in range(1,6):
+            rawDict[row[0]][i-1].append(row[i])
+     
+    # get the size of different transition
+    totalNum = len(data)
     sizeList = []
-    totalNum = 0
-    for key in sizeSeries.index:
-        sizeList.append((key,int(sizeSeries[key])))
-        totalNum += int(sizeSeries[key])
-
-    # sort by the size
-    sizeList.sort(lambda x,y:cmp(x[1],y[1]),reverse=True) 
-
+    for tranStr in rawDict:
+        sizeList.append([tranStr,len(rawDict[tranStr][0])])
+    sizeList.sort(lambda x,y:cmp(y[1],x[1]))
+    
+    # prepare the return data
     rtData = {}
     curNum = 0
     curStr = 0
-    
-    # figure out the measurement
-   
-    divisor = 3600*24
         
+    # figure out the measurement
+       
+    divisor = 3600*24
     for tran,num in sizeList:
-        medianArr = [0,]
-        medianArr.extend([(float(x) / divisor) for x in medianDF[tran].values if x != -1])
+        tsNum = len(tran.split(" ")) - 1
         meanArr = [0,]
-        meanArr.extend([(float(x) / divisor) for x in meanDF[tran].values if x != -1])
-        rtData[tran] = {"num":num,"ts":medianArr,"meants":meanArr}
-        curNum += num
+        q1Arr = [0,]
+        q2Arr = [0,]
+        q3Arr = [0,]
+        tmpSize = len(rawDict[tran][0])
+        for i in range(tsNum):
+            rawDict[tran][i].sort()
+            meanArr.append(sum(rawDict[tran][i]) / (float(tmpSize) * divisor))
+            q1Arr.append(rawDict[tran][i][int(tmpSize * 0.25)] / float(divisor))
+            q2Arr.append(rawDict[tran][i][int(tmpSize * 0.5)] / float(divisor))
+            q3Arr.append(rawDict[tran][i][int(tmpSize * 0.75)] / float(divisor))
+        rtData[tran] = {"num":tmpSize,"ts":q2Arr,"meanTS":meanArr,"q1":q1Arr,"q3":q3Arr}
+        curNum += tmpSize
         curStr += 1
-        # return 15 transision at most
         if curNum > totalNum * 0.9:
             break
         if curStr >= 15:
-            break
+            break    
 
     return rtData
-
 
     
 def workflowInit(db):

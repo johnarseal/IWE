@@ -56,21 +56,25 @@ function parseTree(d){
 			if(curTran in curNode["child"]){
 				curNode = curNode["child"][curTran];
 				// average the ts
-				totalNum = curNode["num"] + tranAttr["num"]
-				curNode["ts"] = (curNode["num"] * curNode["ts"] + tranAttr["num"] * tranAttr["ts"][i]) / totalNum;
-				curNode["meanTS"] = (curNode["num"] * curNode["meanTS"] + tranAttr["num"] * tranAttr["meants"][i]) / totalNum;
-				curNode["num"] = totalNum;
+				var totalNum = curNode["num"] + tranAttr["num"];
+				var keys = ["ts","q1","q3","meanTS"];
+				for(var j in keys){
+					curNode[keys[j]] = (curNode["num"] * curNode[keys[j]] + tranAttr["num"] * tranAttr[keys[j]][i]) / totalNum;
+				}
+				curNode.num = totalNum;
 			}
 			else{		// a new node
 				curNode["child"][curTran]={"child":{},"tag":tagDict[tranStr],"id":nodeId++,"parentId":curNode.id,"statusStr":tranStr};
 				curNode = curNode["child"][curTran];
 				curNode["num"] = tranAttr["num"];
-				curNode["ts"] = tranAttr["ts"][i];
-				curNode["meanTS"] = tranAttr["meants"][i];
+				var keys = ["ts","q1","q3","meanTS"];
+				for(var j in keys){
+					curNode[keys[j]] = tranAttr[keys[j]][i];
+				}
 			}
 			// if it is an end, add a node
 			if(i == endInd){
-				curNode["child"]["END"] = {"num":tranAttr["num"],"ts":tranAttr["ts"][i]};
+				curNode["child"]["END"] = {num:tranAttr["num"],ts:tranAttr["ts"][i]};
 			}
 		}
 	}
@@ -133,7 +137,7 @@ function buildScale(svgAttr,r){
 			tDepth = Math.max(tDepth,depth);
 			lTs += node.ts;
 			node.totalTS = lTs;
-			nodeIndArr[node.id] = {"child":[],"totalTS":lTs,"parentId":node.parentId,"id":node.id,"num":node.num,"statusStr":node.statusStr,"meanTS":node.meanTS};
+			nodeIndArr[node.id] = {child:[],totalTS:lTs,parentId:node.parentId,id:node.id,num:node.num,statusStr:node.statusStr,meanTS:node.meanTS,q1:node.q1,q3:node.q3};
 			if(node.parentId==0){
 				nodeIndArr[0].child.push(node.id);
 			}
@@ -420,7 +424,7 @@ function lightColor(colorInt){
 
 function drawToolTip(svg,svgAttr,nodeId,scale){
 	var boxWidth = 120;
-	var boxHeight = 75;
+	var boxHeight = 100;
 	var tipG = svg.append("g")
 				.attr("id","i"+nodeId+"-tooltip");
 	var tcx = parseInt($("#"+nodeId+"-cir").attr("cx"))+parseInt($("#"+nodeId+"-cir").attr("r"));
@@ -435,7 +439,7 @@ function drawToolTip(svg,svgAttr,nodeId,scale){
 					.attr("height",boxHeight)
 					.attr("x",tcx)
 					.attr("y",tcy)
-					.attr("fill-opacity",0.35)
+					.attr("fill-opacity",0.5)
 					.attr("fill","rgb(121, 205, 205)");
 	var txtBox = tipG.append("text")
 					.attr("x",tcx+5)
@@ -451,15 +455,24 @@ function drawToolTip(svg,svgAttr,nodeId,scale){
 		.attr("x",tcx+5)
 		.attr("dy",15)
 		.style("font-weight","bold")
-		.text("Time(days)")
+		.text("Time(days)");
 	txtBox.append("tspan")
 		.attr("x",tcx+5)
 		.attr("dy",15)
+		.text("  q1   "+scale.nodeIndArr[nodeId].q1.toFixed(2));
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
+		.style("font-weight","bold")
 		.text("  Median "+scale.nodeIndArr[nodeId].totalTS.toFixed(2));
 	txtBox.append("tspan")
 		.attr("x",tcx+5)
 		.attr("dy",15)
-		.text("  Mean   "+scale.nodeIndArr[nodeId].meanTS.toFixed(2));	
+		.text("  q3   "+scale.nodeIndArr[nodeId].q3.toFixed(2));
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
+		.text("  Mean   "+scale.nodeIndArr[nodeId].meanTS.toFixed(2));		
 }
 function drawWorkFlow(d,svgAttr,svgId){
 	var svg = d3.select(svgId)  
