@@ -451,7 +451,7 @@ function drawToolTip(svg,svgAttr,nodeId,scale){
 		.attr("x",tcx+5)
 		.attr("dy",15)
 		.style("font-weight","bold")
-		.text("Time(week)")
+		.text("Time(days)")
 	txtBox.append("tspan")
 		.attr("x",tcx+5)
 		.attr("dy",15)
@@ -478,7 +478,7 @@ function drawWorkFlow(d,svgAttr,svgId){
 	drawTree(0,0,r,svgAttr.paddingH + svgAttr.axisWidth,svgAttr.width - svgAttr.paddingH,scale,svg,svgAttr,nodeCache);
 	drawNodes(svg,svgAttr,nodeCache,scale);
 	
-	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time(week)");
+	drawAxis(scale.axisD,svg,svgAttr.axisWidth,0,"Time(days)");
 	
 	var activeArr = new Array();
 	var lastSelNodeId;

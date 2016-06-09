@@ -40,7 +40,8 @@ function initResTime(data){
 				formatter:function(){
 					var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in<br/>'+ this.x + 'days ';
 					return s;
-				}
+				},
+				crosshairs: [true]
 			},
 			credits: {
 				enabled:false
@@ -57,16 +58,7 @@ function initResTime(data){
 			}
 	});
 }
-function initSelTran(){
-	var transition = "";
-	for(i in selectors.tranStr){
-		transition += selectors.tranStr[i] + " "
-	}
-	selectors.transition = transition.substring(0,transition.length-1);
-	if(selectors.transition == ""){
-		delete selectors.transition;
-	}
-}
+
 function initResRate(rrData,resolution){
 
 	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.8) + "px";
@@ -158,18 +150,6 @@ function initResRate(rrData,resolution){
 		},
 		series: dataSeries
 	});
-}
-function parseSelectors(selectors){
-	var retStr = "";
-	for(var s in selectors){
-		if(s != "tranStr"){
-			retStr += selectors[s] + " ";
-		}
-	}
-	if(retStr == ""){
-		retStr = "All";
-	}
-	return retStr;
 }
 function drawResRate(){
 	

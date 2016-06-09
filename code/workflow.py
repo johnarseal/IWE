@@ -45,7 +45,7 @@ def processWFdata(rawD):
     
     # figure out the measurement
    
-    divisor = 3600*24*7
+    divisor = 3600*24
         
     for tran,num in sizeList:
         medianArr = [0,]

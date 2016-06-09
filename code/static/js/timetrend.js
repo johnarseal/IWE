@@ -25,18 +25,26 @@ function timeTrendInit(data){
 		legend:{
 			enabled:true,
 			margin:0
+		},
+		tooltip:{
+			pointFormatter:function(){
+                var s = "<b>" + this.series.name + " </b>";
+				var ind = this.series.name.indexOf(":")
+				var yAxis = this.series.name.substr(0,ind);
+				if(yAxis == "resRate"){
+					s += (this.y * 100).toFixed(2) + "% fixed bugs";
+				}
+				else if(yAxis == "resTime"){
+					s += "90% bugs fixed in " + this.y.toFixed(0) + " days";
+				}
+				else{
+					s += this.y;
+				}
+				s += "<br/>"
+				return s;
+			}
 		}
     });
-}
-function initSelTran(){
-	var transition = "";
-	for(i in selectors.tranStr){
-		transition += selectors.tranStr[i] + " "
-	}
-	selectors.transition = transition.substring(0,transition.length-1);
-	if(selectors.transition == ""){
-		delete selectors.transition;
-	}
 }
 function initTimeTrendEvent(){
 	var ttAttr = {
@@ -47,8 +55,8 @@ function initTimeTrendEvent(){
 	
 	$(".timeTrendBtn").click(function(){
 		var ttId = $(this).attr("id");
-		console.log(ttAttr[ttId].yAxis);
 		initSelTran();
+		var legend = parseSelectors(selectors);
 		$.get(
 			ttAttr[ttId].url,
 			selectors,
@@ -56,7 +64,7 @@ function initTimeTrendEvent(){
 				console.log(ttAttr[ttId]);
 				var chart = $("#timeTrendWrap").highcharts();
 				chart.addSeries(
-				{data:data,yAxis:ttAttr[ttId].yAxis,dataGrouping:{approximation:ttAttr[ttId].dpAppro}}
+				{name:ttAttr[ttId].yAxis + ": " + legend,data:data,yAxis:ttAttr[ttId].yAxis,dataGrouping:{approximation:ttAttr[ttId].dpAppro}}
 				);
 			},
 			"json"		

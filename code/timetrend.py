@@ -46,10 +46,11 @@ def fetchttResRate(selectors):
     """
     if conSql != None:
         sql += conSql    
-        sql += " resolution = 'FIXED'"
+        sql += " AND resolution = 'FIXED'"
     else:
         sql += " WHERE resolution = 'FIXED' "
     sql += gbSQL
+    print sql
     cursor.execute(sql)
     fixD = list(cursor.fetchall())
     
