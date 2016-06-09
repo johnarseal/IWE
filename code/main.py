@@ -10,8 +10,8 @@ app = Flask(__name__)
 # db is the database
 @app.route('/demo/<db>', methods=["GET"])
 def index(db):
-    lastS = str(dict(session))
-    session["curDb"] = db
+    # DS = dataset
+    session["DS"] = db
     selInfo = getSelectors(db)
     workflowData = getWorkflow(db)
     resrateData = fetchResRate([])

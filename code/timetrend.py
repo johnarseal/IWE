@@ -5,11 +5,9 @@ from sqlconstruct import *
 
 def fetchttWF(selectors):
     
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
 
-    sql = """
-        SELECT DATE_FORMAT(ts0,"%Y-%m-%d"),COUNT(*) FROM iwe_statustran
-    """
+    sql = "SELECT DATE_FORMAT(ts0,'%Y-%m-%d'),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql   
@@ -27,12 +25,10 @@ def fetchttWF(selectors):
 
 def fetchttResRate(selectors):
 
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
     gbSQL = " GROUP BY DATE_FORMAT(ts0,'%Y-%m-%d')"
     # fetch the total data
-    sql = """
-    SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),COUNT(*) FROM iwe_statustran 
-    """        
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]   
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql    
@@ -41,9 +37,7 @@ def fetchttResRate(selectors):
     totalD = list(cursor.fetchall())
     
     # fetch the fix data
-    sql = """
-    SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),COUNT(*) FROM iwe_statustran 
-    """
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     if conSql != None:
         sql += conSql    
         sql += " AND resolution = 'FIXED'"
@@ -68,12 +62,10 @@ def fetchttResRate(selectors):
     
 def fetchttResTime(selectors):
 
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
     
     # fetch the data
-    sql = """
-    SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,"%Y-%m-%d")),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM iwe_statustran 
-    """        
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql + " AND resolve_time IS NOT NULL"

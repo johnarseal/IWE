@@ -5,12 +5,12 @@ from sqlconstruct import *
 
 def fetchResRate(selectors):
     
-    sql = "SELECT resolution, COUNT(*) FROM iwe_statustran "
+    sql = "SELECT resolution, COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql        
     sql += " GROUP BY resolution"
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
     cursor.execute(sql)
     rawD = list(cursor.fetchall())
     retD = []
@@ -24,12 +24,12 @@ def fetchResRate(selectors):
                    
 def fetchResTime(selectors):
 
-    sql = "SELECT UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM iwe_statustran "
+    sql = "SELECT UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql    
     sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0)"
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
     cursor.execute(sql)    
     rawList = list(cursor.fetchall())
     resTimeList = [x[0] for x in rawList if x[0] != None]

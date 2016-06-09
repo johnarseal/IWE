@@ -61,12 +61,12 @@ def processWFdata(rawD):
 
     
 def workflowInit(db):
-    cursor = conDB(db)
+    cursor = conDB()
     if cursor == None:
         return None
         
     # fetch the data from db and transform it into list
-    sql = "SELECT transition, " + sqlTS + " FROM iwe_statustran"
+    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
     cursor.execute(sql)
     rawD = cursor.fetchall()
     rtData = processWFdata(rawD)
@@ -82,11 +82,11 @@ def getWorkflow(db):
     
 def fetchWorkflow(selectors):
     
-    sql = "SELECT transition, " + sqlTS + " FROM iwe_statustran "
+    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql
-    cursor = conDB(session["curDb"])
+    cursor = conDB()
     cursor.execute(sql)
     rawD = cursor.fetchall()
     if len(rawD) == 0:
