@@ -5,10 +5,13 @@ from workflow import *
 from impact import *
 from timetrend import *
 import os,json
-app = Flask(__name__)
+
+app = Flask(__name__,static_folder='iwe/static')
+# setting secret_key for nginx_uwsgi
+app.secret_key = "johnzz@pku.edu.cn"
 
 # db is the database
-@app.route('/demo/<db>', methods=["GET"])
+@app.route('/iwe/demo/<db>', methods=["GET"])
 def index(db):
     # DS = dataset
     session["DS"] = db
@@ -19,42 +22,42 @@ def index(db):
     ttWFData = fetchttWF([])
     return render_template('main.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData)    
     
-@app.route('/api/timetotal', methods=["GET"])
+@app.route('/iwe/api/timetotal', methods=["GET"])
 def timetotal():
     timeTotalData = fetchTimeTotal(request.args)
     return json.dumps(timeTotalData)
     
-@app.route('/api/workflow', methods=["GET"])
+@app.route('/iwe/api/workflow', methods=["GET"])
 def workflow():
     wfData = fetchWorkflow(request.args)
     return json.dumps(wfData)
     
-@app.route('/api/resrate', methods=["GET"])
+@app.route('/iwe/api/resrate', methods=["GET"])
 def resrate():
     resRateData = fetchResRate(request.args)
     return json.dumps(resRateData)
     
-@app.route('/api/restime', methods=["GET"])
+@app.route('/iwe/api/restime', methods=["GET"])
 def restime():
     resTimeData = fetchResTime(request.args)
     return json.dumps(resTimeData)
     
-@app.route('/api/timetrend/wf', methods=["GET"])
+@app.route('/iwe/api/timetrend/wf', methods=["GET"])
 def ttwf():
     ttWFData = fetchttWF(request.args)
     return json.dumps(ttWFData)
 
-@app.route('/api/timetrend/resrate', methods=["GET"])
+@app.route('/iwe/api/timetrend/resrate', methods=["GET"])
 def ttresrate():
     ttRRData = fetchttResRate(request.args)
     return json.dumps(ttRRData)
 
-@app.route('/api/timetrend/restime', methods=["GET"])
+@app.route('/iwe/api/timetrend/restime', methods=["GET"])
 def ttrestime():
     ttRTData = fetchttResTime(request.args)    
     return json.dumps(ttRTData)
     
-@app.route('/debug/<db>/flushsession', methods=["GET"])
+@app.route('/iwe/debug/<db>/flushsession', methods=["GET"])
 def destroySession(db):
     if db in session:
         session[db] = {}
@@ -63,19 +66,10 @@ def destroySession(db):
         return "no session exists"
 
 # for debug use
-@app.route('/debug/listsession', methods=["GET"])
+@app.route('/iwe/debug/listsession', methods=["GET"])
 def listSession():
     return json.dumps(dict(session))
 
-
+# code below will not be executed in deploying environment
 if __name__ == '__main__':
-    """
-    path = '../cache/session'                     
-    if not os.path.exists(path):
-        os.mkdir(path)
-        
-    app.session_interface = SqliteSessionInterface(path)
-    """
-
-    app.secret_key = "johnzz@pku.edu.cn"
-    app.run(debug=True,threaded=True)
+    app.run(debug=True,threaded=True,port=7777)

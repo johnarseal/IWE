@@ -48,9 +48,9 @@ function timeTrendInit(data){
 }
 function initTimeTrendEvent(){
 	var ttAttr = {
-		workflowTT:	{url:"/api/timetrend/wf",yAxis:"workflow",dpAppro:"sum"},
-		resrateTT:	{url:"/api/timetrend/resrate",yAxis:"resRate",dpAppro:"average"},
-		restimeTT:	{url:"/api/timetrend/restime",yAxis:"resTime",dpAppro:"average"}
+		workflowTT:	{url:"/iwe/api/timetrend/wf",yAxis:"workflow",dpAppro:"sum"},
+		resrateTT:	{url:"/iwe/api/timetrend/resrate",yAxis:"resRate",dpAppro:"average"},
+		restimeTT:	{url:"/iwe/api/timetrend/restime",yAxis:"resTime",dpAppro:"average"}
 	};
 	
 	$(".timeTrendBtn").click(function(){

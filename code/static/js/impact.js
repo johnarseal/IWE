@@ -156,7 +156,7 @@ function drawResRate(){
 	initSelTran();
 	
 	$.get(
-		"/api/resrate",
+		"/iwe/api/resrate",
 		selectors,
 		function(data){
 			var chart = $("#res-rate-wrap").highcharts();
@@ -199,7 +199,7 @@ function drawResTime(){
 
 	var chart = $("#fix-time-wrap").highcharts();
 	$.get(
-		"/api/restime",
+		"/iwe/api/restime",
 		selectors,
 		function(data){
 			var newName = parseSelectors(selectors);

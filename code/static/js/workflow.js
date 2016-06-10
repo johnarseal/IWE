@@ -618,7 +618,7 @@ function initWorkflowEvent(){
 	$("#wfRedraw").click(function(){
 		console.log(selectors);
 		$.get(
-			"/api/workflow",
+			"/iwe/api/workflow",
 			selectors,
 			function(data){
 				$("#svg-wrap").html("");

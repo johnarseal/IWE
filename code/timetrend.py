@@ -28,7 +28,7 @@ def fetchttResRate(selectors):
     cursor = conDB()
     gbSQL = " GROUP BY DATE_FORMAT(ts0,'%Y-%m-%d')"
     # fetch the total data
-    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]   
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]   
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql    
@@ -37,7 +37,7 @@ def fetchttResRate(selectors):
     totalD = list(cursor.fetchall())
     
     # fetch the fix data
-    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     if conSql != None:
         sql += conSql    
         sql += " AND resolution = 'FIXED'"

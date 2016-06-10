@@ -200,7 +200,7 @@
 			</div>
 			<div id="sel-startswith" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
+					<div class="sel-hdr col-md-6" style="padding-right:0px">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
@@ -227,7 +227,7 @@
 					<div class="sel-hdr col-md-6">Create Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
 				</div>
 				<div class="checkrow row" style="margin:0px">
-					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input class="sel-inputDate createDate" id="createMin" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input class="sel-inputDate createDate" id="createMax" type="text"/></span></div>
+					<div class="sel-ent-wrap col-md-6">From<span style="padding:0px 2px" class="checkwrap"><input class="sel-inputDate createDate" id="createMin" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span style="padding:0px 2px" class="checkwrap"><input class="sel-inputDate createDate" id="createMax" type="text"/></span></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
@@ -235,7 +235,7 @@
 					<div class="sel-hdr col-md-6">Resolve Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
 				</div>
 				<div class="checkrow row" style="margin:0px">
-					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input id="resolveMin" class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input id="resolveMax" class="sel-inputDate resolveDate" type="text"/></span></div>
+					<div class="sel-ent-wrap col-md-6">From<span style="padding:0px 2px" class="checkwrap"><input id="resolveMin" class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span style="padding:0px 2px" class="checkwrap"><input id="resolveMax" class="sel-inputDate resolveDate" type="text"/></span></div>
 				</div>
 			</div>
 			<!--
@@ -317,15 +317,13 @@ var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddin
 var height = parseInt($("#timeTotalChart").css("width")) * 4 / 5;
 $("#timeTotalChart").css("height",height + "px");
 
-//initTimeTotal("#timeTotalChart",timeTotalData);
-
 initSelectorEvent();
 initWorkflowEvent();
 drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
 initImpactEvent(resrateData,resolution,resTimeData);
 timeTrendInit(timeTotalData);
 initTimeTrendEvent();
-//console.log(Highcharts.charts[0]);
+
 
 </script>
 {% endblock %}
