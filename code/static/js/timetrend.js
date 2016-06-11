@@ -15,7 +15,8 @@ function timeTrendInit(data){
 			enabled:false
 		},
 		xAxis:{
-			type: 'datetime'
+			type: 'datetime',
+			title:{text:"Report Time"}
 		},
 		yAxis:[
 			{id:"workflow"},

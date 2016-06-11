@@ -127,7 +127,7 @@
 		display:none
 	}
 	.checkwrap{
-		padding:0px 10px;
+		padding:0px 3px;
 	}
 	.sel-ent-wrap{
 		font-size:14px;
@@ -157,8 +157,8 @@
                Database <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-               <li><a href="#">Gnome</a></li>
-               <li><a href="/mozilla">Mozilla</a></li>
+               <li><a href="./gnome">Gnome</a></li>
+               <li><a href="./mozilla">Mozilla</a></li>
             </ul>
         </li>
         <li><a href="#">Help</a></li>
@@ -224,10 +224,10 @@
 			</div>
 			<div class="selector-wrap">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Create Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
+					<div class="sel-hdr col-md-6">Report Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
 				</div>
 				<div class="checkrow row" style="margin:0px">
-					<div class="sel-ent-wrap col-md-6">From<span style="padding:0px 2px" class="checkwrap"><input class="sel-inputDate createDate" id="createMin" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span style="padding:0px 2px" class="checkwrap"><input class="sel-inputDate createDate" id="createMax" type="text"/></span></div>
+					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input class="sel-inputDate createDate" id="createMin" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input class="sel-inputDate createDate" id="createMax" type="text"/></span></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
@@ -235,17 +235,10 @@
 					<div class="sel-hdr col-md-6">Resolve Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
 				</div>
 				<div class="checkrow row" style="margin:0px">
-					<div class="sel-ent-wrap col-md-6">From<span style="padding:0px 2px" class="checkwrap"><input id="resolveMin" class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span style="padding:0px 2px" class="checkwrap"><input id="resolveMax" class="sel-inputDate resolveDate" type="text"/></span></div>
+					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input id="resolveMin" class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input id="resolveMax" class="sel-inputDate resolveDate" type="text"/></span></div>
 				</div>
 			</div>
-			<!--
-			<div class="selector-wrap" id="timeTotalSel">
-				<div class="row" style="margin:0px;box-sizing: border-box;">
-				<div class="sel-header">Created Bugs Over Time</div>
-				<div style="float:right;margin-right:10px;margin-top:5px"><img id="totalTimeRefresh" class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
-				</div>
-				<div id="timeTotalChart"></div>
-			</div>-->
+
 	   </div>
 	</div>
 	</div>
@@ -273,7 +266,7 @@
 	<div class='impact-box'>
 		<div class="row" style="margin:0px">
 			<div class="impact-hdr-wrap col-md-5">
-				<h4 style="margin-top:5px">Resolution</h4>
+				<h4 style="margin-top:5px;margin-bottom:0px">Resolution</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
 				<button type="button" id="resrateTT" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button id="resolutionDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resolutionClear" type="button" class="my-btn btn btn-default">Clear</button>
@@ -310,7 +303,7 @@ var timeTotalData = {{ ttWFData|tojson|safe }};
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566","CLO":"#BC96F7"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566","CLO":"#BC96F7","NEE":"#BB5566"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 

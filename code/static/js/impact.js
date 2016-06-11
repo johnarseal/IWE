@@ -138,7 +138,8 @@ function initResRate(rrData,resolution){
 		legend: {
 			reversed: true,
 			verticalAlign: 'top',
-			margin:0
+			margin:0,
+			maxHeight:80
 		},
 		plotOptions: {
 			series: {
