@@ -371,7 +371,7 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr,nodeCache)
 
 
 //draw the axis of the workflow view
-function drawAxis(d,svg,startX,startY,title=false){
+function drawAxis(d,svg,startX,startY,title){
 var scaleSize = 8;
 var g = svg.append("g")
 	  .attr("class","axis")
