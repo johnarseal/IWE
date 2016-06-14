@@ -17,6 +17,7 @@ app.secret_key = "aijohn122@live.cn"
 def index(db):
     # DS = dataset
     session["DS"] = db
+    session["tmtp"] = "rpt"
     selInfo = getSelectors(db)
     workflowData = getWorkflow(db)
     resrateData = fetchResRate([])
@@ -66,6 +67,11 @@ def destroySession(db):
         return "session destroyed"
     else:
         return "no session exists"
+
+@app.route('/iwe/api/tmtp/<tp>',methods=["POST"])
+def setTimeType(tp):
+    session["tmtp"] = tp
+    return tp
 
 # for debug use
 @app.route('/iwe/debug/listsession', methods=["GET"])

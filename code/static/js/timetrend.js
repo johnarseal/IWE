@@ -16,11 +16,16 @@ function timeTrendInit(data){
 		},
 		xAxis:{
 			type: 'datetime',
-			title:{text:"Report Time"}
+			title:{text:"Time"},
+            dateTimeLabelFormats: {
+                day: '%Y-%m-%d',
+                month: '%Y-%m',
+                year: '%Y'
+            }
 		},
 		yAxis:[
-			{id:"workflow"},
-			{id:"resRate",min:0,max:1},
+			{id:"workflow",labels:{align:"right",x:30},title:{text:"number of issues",offset:40}},
+			{id:"resRate",min:0,max:1,title:{text:"proportion of issues"},opposite:false},
 			{id:"resTime"}
 		],
 		legend:{
@@ -28,6 +33,16 @@ function timeTrendInit(data){
 			margin:0
 		},
 		tooltip:{
+			dateTimeLabelFormats: {
+				millisecond: '%b %d, %Y %H:%M:%S.%L',
+				second: '%b %d, %Y %H:%M:%S',
+				minute: '%b %d, %Y %H:%M',
+				hour: '%b %d, %Y %H:%M',
+				day: '%b %d, %Y',
+				week: '%b %d, %Y',
+				month: '%b %Y',
+				year: '%Y'
+            },
 			pointFormatter:function(){
                 var s = "<b>" + this.series.name + " </b>";
 				var ind = this.series.name.indexOf(":")
@@ -80,5 +95,15 @@ function initTimeTrendEvent(){
 		}
 	
 		chart.redraw();
-	});	
+	});
+	$("#tmtprpt").click(function(){
+        alert("You have switched to reprot time.");
+		$.post("/iwe/api/tmtp/rpt");
+	});
+	$("#tmtprsl").click(function(){
+        alert("You have switched to resolution time.");
+		$.post("/iwe/api/tmtp/rslt");
+	});
 }
+
+fu

@@ -4,16 +4,23 @@ import time
 from sqlconstruct import *
 
 def fetchttWF(selectors):
-    
+
+    thistime = "ts0"
+    if session["tmtp"] == "rslt":
+        thistime = "resolve_time"   
+
     cursor = conDB()
 
-    sql = "SELECT DATE_FORMAT(ts0,'%Y-%m-%d'),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
+    sql = "SELECT DATE_FORMAT("+thistime+",'%Y-%m-%d'),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
-        sql += conSql   
-    sql += """ 
-        GROUP BY DATE_FORMAT(ts0,"%Y-%m-%d")
-    """
+        sql += conSql
+        if thistime == "resolve_time":
+            sql += " AND resolve_time IS NOT NULL"
+    else:
+        if thistime == "resolve_time":
+            sql += " WHERE resolve_time IS NOT NULL" 
+    sql += " GROUP BY DATE_FORMAT("+thistime+",'%Y-%m-%d')"
 
     cursor.execute(sql)
     
@@ -25,24 +32,37 @@ def fetchttWF(selectors):
 
 def fetchttResRate(selectors):
 
+    thistime = "ts0"
+    if session["tmtp"] == "rslt":
+        thistime = "resolve_time"   
+
     cursor = conDB()
-    gbSQL = " GROUP BY DATE_FORMAT(ts0,'%Y-%m-%d')"
+    gbSQL = " GROUP BY DATE_FORMAT("+thistime+",'%Y-%m-%d')"
     # fetch the total data
-    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]   
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT("+thistime+",'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]   
     conSql = buildSQL(selectors)
     if conSql != None:
-        sql += conSql    
+        sql += conSql
+        if thistime == "resolve_time":
+            sql += " AND resolve_time IS NOT NULL"
+    else:
+        if thistime == "resolve_time":
+            sql += " WHERE resolve_time IS NOT NULL"     
     sql += gbSQL
     cursor.execute(sql)
     totalD = list(cursor.fetchall())
     
     # fetch the fix data
-    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT("+thistime+",'%Y-%m-%d')),COUNT(*) FROM " + TD[session["DS"]]["statustran"]
     if conSql != None:
         sql += conSql    
         sql += " AND resolution = 'FIXED'"
+        if thistime == "resolve_time":
+            sql += " ADN resolve_time IS NOT NULL"
     else:
-        sql += " WHERE resolution = 'FIXED' "
+        sql += " WHERE resolution = 'FIXED'"
+        if thistime == "resolve_time":
+            sql += " AND resolve_time IS NOT NULL"   
     sql += gbSQL
     print sql
     cursor.execute(sql)
@@ -62,16 +82,20 @@ def fetchttResRate(selectors):
     
 def fetchttResTime(selectors):
 
+    thistime = "ts0"
+    if session["tmtp"] == "rslt":
+        thistime = "resolve_time"   
+
     cursor = conDB()
     
     # fetch the data
-    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT(ts0,'%Y-%m-%d')),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM " + TD[session["DS"]]["statustran"]
+    sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT("+thistime+",'%Y-%m-%d')),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
         sql += conSql + " AND resolve_time IS NOT NULL"
     else:
         sql += " WHERE resolve_time IS NOT NULL"
-    sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0)"
+    sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP("+thistime+")"
     cursor.execute(sql)
     rawD = list(cursor.fetchall())
     rawDict = {}

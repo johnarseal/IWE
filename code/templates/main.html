@@ -142,6 +142,10 @@
 		height:22px;
 		margin-bottom:3px;
 	}
+	.tmtptxt{
+		color: gray;
+		font-size: 16px;
+	}
 	{% endblock %}
    </style>
 </head>
@@ -200,7 +204,7 @@
 			</div>
 			<div id="sel-startswith" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6" style="padding-right:0px">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
+					<div class="sel-hdr col-md-6" style="padding-right:0px">Start With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
@@ -212,7 +216,7 @@
 			</div>
 			<div id="sel-includes" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Includes Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
+					<div class="sel-hdr col-md-6">Include Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
@@ -251,7 +255,7 @@
 	</div>
 	</div>
 	</div></div>
-	<div style="text-align:center;font-size:20px;">Time Trend<button type="button" id="timetrend-clear" class="my-btn btn btn-default" style="margin-left:20px">Clear</button></div>
+	<div style="text-align:center;font-size:20px;">Time Trend <span class="tmtptxt" style="margin-left:20px">Event Type:</span><input type="radio" id="tmtprpt" name="time-type" checked="checked" style="margin-left:10px"/><span class="tmtptxt">reprot</span><input type="radio" id="tmtprsl" name="time-type" style="margin-left:10px"/><span class="tmtptxt">resolution</span><button type="button" id="timetrend-clear" class="my-btn btn btn-default" style="margin-left:20px">Clear</button></div>
 	<div id="timeTrendWrap">
 	</div>
 </div>
@@ -260,7 +264,7 @@
 <div class="panel panel-default" style="margin-top:10px;">
 	<div class="panel-heading" style="background-color:#FFCFCF;">
 		<h3 class="panel-title">
-			MEASUREMENTS
+			INVESTIGATIONS
 		</h3>
 	</div>
 	<div class='impact-box'>
