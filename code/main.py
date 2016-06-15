@@ -23,7 +23,13 @@ def index(db):
     resrateData = fetchResRate([])
     resTimeData = fetchResTime([])
     ttWFData = fetchttWF([])
-    return render_template('main.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData)    
+    return render_template('demo.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData)    
+
+# db is the database
+@app.route('/iwe/about', methods=["GET"])
+def about():
+    # DS = dataset
+    return render_template('about.html')
     
 @app.route('/iwe/api/timetotal', methods=["GET"])
 def timetotal():
