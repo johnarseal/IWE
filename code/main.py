@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # setting secret_key for nginx_uwsgi
 
-app.secret_key = "johnzz@pku.edu.cn"
+app.secret_key = "aijohn122@live.cn"
 
 # db is the database
 @app.route('/iwe/demo/<db>', methods=["GET"])
