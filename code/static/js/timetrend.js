@@ -105,5 +105,3 @@ function initTimeTrendEvent(){
 		$.post("/iwe/api/tmtp/rslt");
 	});
 }
-
-fu
