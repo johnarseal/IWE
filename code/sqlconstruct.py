@@ -34,8 +34,10 @@ def buildSQL(selectors,keys=("bug_severity","priority","product","resolution","t
                 conSql += "resolve_time >= '" + selectors[key] + "' AND "
             elif key == "resolveMax":
                 conSql += "resolve_time <= '" + selectors[key] + "' AND "
-            else:
+            elif key != "includes[]" and key != "startswith[]":
                 conSql += key + " = '" + selectors[key] + "' AND "
+            else:
+                continue
             hasKey = True
             
     if hasKey:

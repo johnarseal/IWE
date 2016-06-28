@@ -60,18 +60,10 @@ def selectorsInit(db):
 
 # get the data from selectors, first try session, if not cached then try database    
 def getSelectors(db):
-        
-    if db not in session:
-        session[db] = {}
     
-    if "selInfo" in session[db]:
-        print "cahce hit"
-        return session[db]["selInfo"]
-    else:
-        print "cache miss"
-        selInfo = selectorsInit(db)
-        session[db]["selInfo"] = selInfo
-        return selInfo
+    selInfo = selectorsInit(db)
+    # session[db]["selInfo"] = selInfo
+    return selInfo
         
         
 def fetchTimeTotal(selectors):

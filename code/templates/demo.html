@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Issue Workflow Explorer</title>
+	<title>IWE Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link href="{{url_for('static', filename='js/lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -127,7 +127,7 @@
 		display:none
 	}
 	.checkwrap{
-		padding:0px 10px;
+		padding:0px 3px;
 	}
 	.sel-ent-wrap{
 		font-size:14px;
@@ -142,6 +142,10 @@
 		height:22px;
 		margin-bottom:3px;
 	}
+	.tmtptxt{
+		color: gray;
+		font-size: 16px;
+	}
 	{% endblock %}
    </style>
 </head>
@@ -154,15 +158,17 @@
       <ul class="nav navbar-nav">
 	    <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-               Database <b class="caret"></b>
+               Project <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-               <li><a href="#">Gnome</a></li>
-               <li><a href="/mozilla">Mozilla</a></li>
+               <li><a href="./gnome"> {% if session.DS=="gnome" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Gnome</span></a></li>
+               <li><a href="./mozilla"> {% if session.DS=="mozilla" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Mozilla</span></a></li>
             </ul>
         </li>
-        <li><a href="#">Help</a></li>
-        <li><a href="#">About</a></li>
+        <li><a>[{{project}}]</a></li>
+        <li><a href="../about">About</a></li>
+        <li><a href="../dataset" style="color:#FF4040">Dataset</a></li>
+        <li><a href="../screen_cast" style="color:#FF4040">Screen-cast</a></li>
       </ul>
    </div>
 </nav>
@@ -174,7 +180,7 @@
 	<div class="panel panel-default" style="margin-bottom:0px;margin-top:5px;">
 	   <div class="panel-heading" style="background-color: #EFFEEF;">
 		  <h3 class="panel-title">
-			 SELECTORS
+			 Selectors
 		  </h3>
 	   </div>
 	   <div class="panel-body" style="padding:5px">
@@ -200,7 +206,7 @@
 			</div>
 			<div id="sel-startswith" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Starts With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
+					<div class="sel-hdr col-md-6" style="padding-right:0px">Start With Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
@@ -212,7 +218,7 @@
 			</div>
 			<div id="sel-includes" class="selector-wrap" style="max-height: 80px;overflow-y: scroll;">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Includes Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
+					<div class="sel-hdr col-md-6">Include Status</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall checkTrigger" type="checkbox"/></span><span class="checkTag">All</span></div>
 				</div>
 				{% for pair in selInfo.statusInfo %}
 				<div class="checkrow row" style="margin:0px">
@@ -224,7 +230,7 @@
 			</div>
 			<div class="selector-wrap">
 				<div class="checkrow row" style="margin:0px;padding-top:6px;">
-					<div class="sel-hdr col-md-6">Create Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
+					<div class="sel-hdr col-md-6">Report Time</div><div class="sel-ent-wrap col-md-6"><span class="checkwrap"><input class="checkall allInputDate" type="checkbox"/></span>All</div>
 				</div>
 				<div class="checkrow row" style="margin:0px">
 					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input class="sel-inputDate createDate" id="createMin" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input class="sel-inputDate createDate" id="createMax" type="text"/></span></div>
@@ -238,14 +244,7 @@
 					<div class="sel-ent-wrap col-md-6">From<span class="checkwrap"><input id="resolveMin" class="sel-inputDate resolveDate" type="text"/></span></div><div class="sel-ent-wrap col-md-6">To<span class="checkwrap"><input id="resolveMax" class="sel-inputDate resolveDate" type="text"/></span></div>
 				</div>
 			</div>
-			<!--
-			<div class="selector-wrap" id="timeTotalSel">
-				<div class="row" style="margin:0px;box-sizing: border-box;">
-				<div class="sel-header">Created Bugs Over Time</div>
-				<div style="float:right;margin-right:10px;margin-top:5px"><img id="totalTimeRefresh" class="sel-btn-img" src="{{url_for('static', filename='img/refresh.png')}}"/></div>
-				</div>
-				<div id="timeTotalChart"></div>
-			</div>-->
+
 	   </div>
 	</div>
 	</div>
@@ -258,7 +257,7 @@
 	</div>
 	</div>
 	</div></div>
-	<div style="text-align:center;font-size:20px;">Time Trend<button type="button" id="timetrend-clear" class="my-btn btn btn-default" style="margin-left:20px">Clear</button></div>
+	<div style="padding-left:45%;font-size:20px;">Time Trend <span class="tmtptxt" style="margin-left:20px">Event Type:</span><input type="radio" id="tmtprpt" name="time-type" checked="checked" style="margin-left:10px"/><span class="tmtptxt">report</span><input type="radio" id="tmtprsl" name="time-type" style="margin-left:10px"/><span class="tmtptxt">resolution</span><button type="button" id="timetrend-clear" class="my-btn btn btn-default" style="margin-left:20px">Clear</button></div>
 	<div id="timeTrendWrap">
 	</div>
 </div>
@@ -267,13 +266,13 @@
 <div class="panel panel-default" style="margin-top:10px;">
 	<div class="panel-heading" style="background-color:#FFCFCF;">
 		<h3 class="panel-title">
-			MEASUREMENTS
+			Investigations
 		</h3>
 	</div>
 	<div class='impact-box'>
 		<div class="row" style="margin:0px">
 			<div class="impact-hdr-wrap col-md-5">
-				<h4 style="margin-top:5px">Resolution</h4>
+				<h4 style="margin-top:5px;margin-bottom:0px">Resolution</h4>
 			</div>
 			<div class="impact-btn-wrap col-md-7">
 				<button type="button" id="resrateTT" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button id="resolutionDraw" type="button" style="background-color:#00868B"class="my-btn btn btn-primary">Draw</button><button id="resolutionClear" type="button" class="my-btn btn btn-default">Clear</button>
@@ -310,14 +309,12 @@ var timeTotalData = {{ ttWFData|tojson|safe }};
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
-var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566","CLO":"#BC96F7"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
+var colors = {"canvas":"#FFFFFF","node":{"NEW":"#FFB90F","UNC":"#FFFF00","ASS":"#00DD87","RES":"#ADD8E6","VER":"#4682B4","REO":"#FF5566","CLO":"#BC96F7","NEE":"#BB5566"},"text":"#000000","edge":"#79CDCD","nodeBorder":"#EDEDED","selectedBorder":"#00EE00","activeBorder":"#00FFFF"};
 
 var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddingH":10,"axisWidth":20,"colors":colors};
 
 var height = parseInt($("#timeTotalChart").css("width")) * 4 / 5;
 $("#timeTotalChart").css("height",height + "px");
-
-//initTimeTotal("#timeTotalChart",timeTotalData);
 
 initSelectorEvent();
 initWorkflowEvent();
@@ -325,7 +322,7 @@ drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
 initImpactEvent(resrateData,resolution,resTimeData);
 timeTrendInit(timeTotalData);
 initTimeTrendEvent();
-//console.log(Highcharts.charts[0]);
+
 
 </script>
 {% endblock %}

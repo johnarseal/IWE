@@ -105,42 +105,8 @@ function initSelectorEvent(){
 		console.log(selectors);
 	});
 	
-	/*
-	$("#totalTimeRefresh").click(function(){
-		redrawTimeTotal();
-		$("#totalTimeRefresh").hide();
-	});
-	
-	$(".highcharts-range-selector").change(function(){
-		var key = $(this).attr("name") + "Date";
-		var dateStr;
-		if($(this).attr("name") == "min"){
-			dateStr = "-01"
-		}
-		else{
-			dateStr = "-31"
-		}
-		selectors[key] = $(this).val() + dateStr;
-	});
-	$("#timeTotalChart").mouseup(function(){
-		var minDate = $("input[class='highcharts-range-selector'][name='min']").val() + "-01";
-		var maxDate = $("input[class='highcharts-range-selector'][name='max']").val() + "-31";
-		selectors.minDate = minDate;
-		selectors.maxDate = maxDate;
-	});*/
 }
 
-function redrawTimeTotal(){
-	$.get(
-		"/api/timetotal",
-		selectors,
-		function(data){
-			var chart = $("#timeTotalChart").highcharts();
-			chart.series[0].setData(data);
-		},
-		"json"
-	);
-}
 
 
 

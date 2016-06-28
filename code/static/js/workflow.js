@@ -2,7 +2,7 @@
 // time gap between its parent and itself
 function parseTree(d){
 	var tagDict = {
-	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO","CLOSED":"CLO"
+	"NEW":"NEW","ASSIGNED":"ASS","UNCONFIRMED":"UNC","RESOLVED":"RES","VERIFIED":"VER","REOPENED":"REO","CLOSED":"CLO","NEEDINFO":"NEE"
 	}
 	//build a tree
 	var nodeId = 0;
@@ -371,7 +371,7 @@ function drawTree(lEdgeX,lEdgeY,node,left,right,treeScale,svg,svgAttr,nodeCache)
 
 
 //draw the axis of the workflow view
-function drawAxis(d,svg,startX,startY,title=false){
+function drawAxis(d,svg,startX,startY,title){
 var scaleSize = 8;
 var g = svg.append("g")
 	  .attr("class","axis")
@@ -424,7 +424,7 @@ function lightColor(colorInt){
 
 function drawToolTip(svg,svgAttr,nodeId,scale){
 	var boxWidth = 120;
-	var boxHeight = 100;
+	var boxHeight = 115;
 	var tipG = svg.append("g")
 				.attr("id","i"+nodeId+"-tooltip");
 	var tcx = parseInt($("#"+nodeId+"-cir").attr("cx"))+parseInt($("#"+nodeId+"-cir").attr("r"));
@@ -447,6 +447,11 @@ function drawToolTip(svg,svgAttr,nodeId,scale){
 
 	txtBox.append("tspan")
 		.attr("x",tcx+5)
+		.style("font-weight","bold")
+		.text(scale.nodeIndArr[nodeId].statusStr);	
+	txtBox.append("tspan")
+		.attr("x",tcx+5)
+		.attr("dy",15)
 		.style("font-weight","bold")
 		.text("num ");
 	txtBox.append("tspan")
@@ -618,7 +623,7 @@ function initWorkflowEvent(){
 	$("#wfRedraw").click(function(){
 		console.log(selectors);
 		$.get(
-			"/api/workflow",
+			"/iwe/api/workflow",
 			selectors,
 			function(data){
 				$("#svg-wrap").html("");
