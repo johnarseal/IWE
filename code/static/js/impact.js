@@ -138,7 +138,8 @@ function initResRate(rrData,resolution){
 		legend: {
 			reversed: true,
 			verticalAlign: 'top',
-			margin:0
+			margin:0,
+			maxHeight:80
 		},
 		plotOptions: {
 			series: {
@@ -156,7 +157,7 @@ function drawResRate(){
 	initSelTran();
 	
 	$.get(
-		"/api/resrate",
+		"/iwe/api/resrate",
 		selectors,
 		function(data){
 			var chart = $("#res-rate-wrap").highcharts();
@@ -199,7 +200,7 @@ function drawResTime(){
 
 	var chart = $("#fix-time-wrap").highcharts();
 	$.get(
-		"/api/restime",
+		"/iwe/api/restime",
 		selectors,
 		function(data){
 			var newName = parseSelectors(selectors);

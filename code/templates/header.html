@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>IWE About</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="{{url_for('static', filename='js/lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<script src="{{url_for('static', filename='js/lib/jquery-2.2.3.min.js')}}"></script>
+	<script src="{{url_for('static', filename='js/lib/bootstrap/js/bootstrap.min.js')}}"></script>
+   <style>
+   .intro{
+  color: gray;
+  margin: 20px;
+  font-size: 26px;
+   }
+   </style>
+</head>
+<body>
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+   <div class="navbar-header">
+      <a class="navbar-brand" style="font-weight:bold;">Issue Workflow Explorer</a>
+   </div>
+   <div>
+      <ul class="nav navbar-nav">
+	    <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+               Project <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+               <li><a href="./demo/gnome"> {% if session.DS=="gnome" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Gnome</span></a></li>
+               <li><a href="./demo/mozilla"> {% if session.DS=="mozilla" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Mozilla</span></a></li>
+            </ul>
+        </li>
+        <li><a>[{{project}}]</a></li>
+        <li><a href="./about">About</a></li>
+        <li><a href="./dataset" style="color:#FF4040">Dataset</a></li>
+        <li><a href="./screen_cast" style="color:#FF4040">Screen-cast</a></li>
+      </ul>
+   </div>
+</nav>
+</div>
+{% block body %}{% endblock %}
+</div>
+</body>
+<html>
