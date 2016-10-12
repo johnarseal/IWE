@@ -1,6 +1,6 @@
 
 
-def buildSQL(selectors,keys=("bug_severity","priority","product","resolution","transition","startswith[]","includes[]","createMin","createMax","resolveMin","resolveMax")):
+def buildSQL(selectors,keys=("bug_severity","component","priority","product","resolution","transition","startswith[]","includes[]","createMin","createMax","resolveMin","resolveMax")):
     
     conSql = " WHERE "
     hasKey = False
@@ -34,6 +34,17 @@ def buildSQL(selectors,keys=("bug_severity","priority","product","resolution","t
                 conSql += "resolve_time >= '" + selectors[key] + "' AND "
             elif key == "resolveMax":
                 conSql += "resolve_time <= '" + selectors[key] + "' AND "
+            elif key == "priority":
+                if selectors[key] == "Tagged":
+                    conSql += "priority != '--' AND "
+                else:
+                    conSql += "priority = '" + selectors[key] + "' AND "
+                
+            # for temporate test
+            elif key == "product":
+                conSql += "component = '" + selectors[key] + "' AND "
+            # temporate test ends
+            
             elif key != "includes[]" and key != "startswith[]":
                 conSql += key + " = '" + selectors[key] + "' AND "
             else:

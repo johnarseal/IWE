@@ -1,3 +1,4 @@
+
 from settings import *
 from flask import session
 import time
@@ -9,11 +10,20 @@ def selectorsInit(db):
         return None
     
     # fetch product
+    """
     sql = "SELECT `name` FROM " + TD[session["DS"]]["products"] + " ORDER BY `name`"
     cursor.execute(sql)
     products = cursor.fetchall()
     productInfo = ["All",]
     productInfo.extend([x[0] for x in products if x[0] != ""])
+    """
+
+    sql = "SELECT DISTINCT(component) FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `component`"
+    cursor.execute(sql)
+    products = cursor.fetchall()
+    productInfo = ["All",]
+    productInfo.extend([x[0].encode('utf-8').decode('utf-8') for x in products if x[0] != ""])
+    
     
     # fetch resolution
     sql = "SELECT DISTINCT(resolution) FROM " + TD[session["DS"]]["statustran"]
@@ -33,7 +43,7 @@ def selectorsInit(db):
     sql = "SELECT DISTINCT(priority) FROM " + TD[session["DS"]]["statustran"]
     cursor.execute(sql)
     priority = cursor.fetchall()
-    priorInfo = ["All",]
+    priorInfo = ["All","Tagged"]
     priorInfo.extend([x[0] for x in priority if x[0] != ""])
     
     # status

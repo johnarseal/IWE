@@ -62,6 +62,28 @@ function timeTrendInit(data){
 		}
     });
 }
+
+function replaceNull(data){
+	var lastDate = data[0][0];
+	var rtData = [data[0],];
+	
+	// max interval is a day
+	var oneDayMiniSec = 24*3600000;
+	
+	for(i in data){
+		if(i == 0){
+			continue;
+		}
+		curDate = data[i][0];
+		while(curDate - lastDate > oneDayMiniSec){
+			lastDate += oneDayMiniSec;
+			rtData.push([lastDate,0]);
+		}
+		rtData.push(data[i]);
+		lastDate = curDate;
+	} 
+	return rtData;
+}
 function initTimeTrendEvent(){
 	var ttAttr = {
 		workflowTT:	{url:"/iwe/api/timetrend/wf",yAxis:"workflow",dpAppro:"sum"},
@@ -77,8 +99,9 @@ function initTimeTrendEvent(){
 			ttAttr[ttId].url,
 			selectors,
 			function(data){
-				console.log(ttAttr[ttId]);
+				//console.log(ttAttr[ttId]);
 				var chart = $("#timeTrendWrap").highcharts();
+				data = replaceNull(data);
 				chart.addSeries(
 				{name:ttAttr[ttId].yAxis + ": " + legend,data:data,yAxis:ttAttr[ttId].yAxis,dataGrouping:{approximation:ttAttr[ttId].dpAppro}}
 				);
