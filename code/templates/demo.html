@@ -3,6 +3,8 @@
 <head>
 	<title>IWE Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script src="{{url_for('static', filename='js/lib/pace/pace.min.js')}}"></script>
+	<link href="{{url_for('static', filename='js/lib/pace/themes/pace.js.css')}}" rel="stylesheet" />
 	<link href="{{url_for('static', filename='js/lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 	<script src="{{url_for('static', filename='js/lib/jquery-2.2.3.min.js')}}"></script>
@@ -161,12 +163,14 @@
                Project <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-               <li><a href="./gnome">Gnome</a></li>
-               <li><a href="./mozilla">Mozilla</a></li>
+               <li><a href="./gnome"> {% if session.DS=="gnome" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Gnome</span></a></li>
+               <li><a href="./mozilla"> {% if session.DS=="mozilla" %} <span style="font-size:20px">&rsaquo; {% else %} <span style="font-size:20px">&nbsp; {% endif %} </span> <span>Mozilla</span></a></li>
             </ul>
         </li>
-        <li><a href="../help">Help</a></li>
+        <li><a>[{{project}}]</a></li>
         <li><a href="../about">About</a></li>
+        <li><a href="../dataset" style="color:#FF4040">Dataset</a></li>
+        <li><a href="../screen_cast" style="color:#FF4040">Screen-cast</a></li>
       </ul>
    </div>
 </nav>
@@ -178,7 +182,7 @@
 	<div class="panel panel-default" style="margin-bottom:0px;margin-top:5px;">
 	   <div class="panel-heading" style="background-color: #EFFEEF;">
 		  <h3 class="panel-title">
-			 SELECTORS
+			 Selectors
 		  </h3>
 	   </div>
 	   <div class="panel-body" style="padding:5px">
@@ -264,7 +268,7 @@
 <div class="panel panel-default" style="margin-top:10px;">
 	<div class="panel-heading" style="background-color:#FFCFCF;">
 		<h3 class="panel-title">
-			INVESTIGATIONS
+			Investigations
 		</h3>
 	</div>
 	<div class='impact-box'>

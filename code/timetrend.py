@@ -21,7 +21,7 @@ def fetchttWF(selectors):
         if thistime == "resolve_time":
             sql += " WHERE resolve_time IS NOT NULL" 
     sql += " GROUP BY DATE_FORMAT("+thistime+",'%Y-%m-%d')"
-
+    print "hey hehe " + sql
     cursor.execute(sql)
     
     totalNum = cursor.fetchall()

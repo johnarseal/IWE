@@ -1,0 +1,13 @@
+product			ASSIGNED	FIXED	RATE
+core			51229		82454	0.6213
+Seamonkey		13014		17022	0.7645
+Firefox			8850		15105	0.5859
+MailNews Core	6603		7631	0.8653
+mozilla.org		6081		29618	0.2053
+Bugzilla		5865		7636	0.8990
+Toolkit			4508		7239	0.6227
+Thunderbird		3018		5217	0.5785
+
+
+Some of product keep the use of assign, like bugzilla, mailnews core and firefox
+Others have a decline trend, like core

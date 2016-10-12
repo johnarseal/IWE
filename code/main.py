@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, redirect, url_for, render_template, session
+from flask import Flask, jsonify, request, redirect, url_for, render_template, session, current_app, send_from_directory
 from settings import *
 from selectors import *
 from workflow import *
@@ -12,24 +12,56 @@ app = Flask(__name__)
 
 app.secret_key = "aijohn122@live.cn"
 
+app.config.update(dict(
+    UPLOAD_FOLDER='data'
+))
+
+@app.route('/iwe/demo', methods=["GET"])
+def index0():
+    session["fse"] = True
+    return redirect(url_for('index', db='mozilla'))
+ 
+
 # db is the database
-@app.route('/iwe/demo/<db>', methods=["GET"])
+@app.route('/iwe/demo/<db>')
 def index(db):
     # DS = dataset
     session["DS"] = db
     session["tmtp"] = "rpt"
+    if not session.has_key("fse"):
+        session["fse"] = False
     selInfo = getSelectors(db)
     workflowData = getWorkflow(db)
     resrateData = fetchResRate([])
     resTimeData = fetchResTime([])
     ttWFData = fetchttWF([])
-    return render_template('demo.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData)    
+    return render_template('demo.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData,project=db)    
 
 # db is the database
 @app.route('/iwe/about', methods=["GET"])
 def about():
     # DS = dataset
-    return render_template('about.html')
+    if session["fse"] == True:
+        return render_template('about.html',project=session["DS"])
+    else:
+        return render_template('about0.html',project=session["DS"])
+
+@app.route('/iwe/screen_cast', methods=["GET"])
+def screen_cast():
+    # DS = dataset
+    return render_template('screen_cast.html',project=session["DS"])
+
+@app.route('/iwe/dataset', methods=["GET"])
+def dataset():
+    # DS = dataset
+    return render_template('dataset.html',project=session["DS"])
+
+@app.route('/iwe/download/<path:fname>', methods=["GET","POST"])
+def download(fname):
+    print fname
+    dfilepath = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
+    print dfilepath
+    return send_from_directory(directory=dfilepath, filename=fname)
     
 @app.route('/iwe/api/timetotal', methods=["GET"])
 def timetotal():

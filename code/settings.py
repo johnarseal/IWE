@@ -1,7 +1,7 @@
 import MySQLdb
 
 def conDB():   
-    db = MySQLdb.connect("localhost","root","9182736450","iwe")
+    db = MySQLdb.connect("localhost","root","","iwe")
     cursor = db.cursor()
     return cursor
 
