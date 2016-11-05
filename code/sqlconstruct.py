@@ -1,7 +1,9 @@
 
 
 def buildSQL(selectors,keys=("bug_severity","component","priority","product","resolution","transition","startswith[]","includes[]","createMin","createMax","resolveMin","resolveMax")):
-    
+    if selectors == None:
+        return None
+        
     conSql = " WHERE "
     hasKey = False
     hasTranStr = False
@@ -40,10 +42,15 @@ def buildSQL(selectors,keys=("bug_severity","component","priority","product","re
                 else:
                     conSql += "priority = '" + selectors[key] + "' AND "
                 
-            # for temporate test
+            # for temporary test
             elif key == "product":
-                conSql += "component = '" + selectors[key] + "' AND "
-            # temporate test ends
+                # how we distinguish between different teams
+                if session["DS"] == "mozilla":
+                    teamDiv = "component"
+                else:
+                    teamDiv = "product"
+                conSql += teamDiv + " = '" + selectors[key] + "' AND "
+            # temporary test ends
             
             elif key != "includes[]" and key != "startswith[]":
                 conSql += key + " = '" + selectors[key] + "' AND "

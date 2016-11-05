@@ -621,7 +621,6 @@ function drawWorkFlow(d,svgAttr,svgId){
 function initWorkflowEvent(){
 	
 	$("#wfRedraw").click(function(){
-		console.log(selectors);
 		$.get(
 			"/iwe/api/workflow",
 			selectors,

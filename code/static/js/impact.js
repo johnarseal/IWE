@@ -92,7 +92,6 @@ function initResRate(rrData,resolution){
 	// set categories
 	var cat = parseSelectors(selectors);
 	
-	console.log(dataSeries);
 	$('#res-rate-wrap').highcharts({
 		chart: {
 			type: 'bar',
@@ -189,7 +188,7 @@ function drawResRate(){
 			}
 			var oldCat = chart.xAxis[0].categories;
 			oldCat.push(parseSelectors(selectors));
-			chart.xAxis[0].setCategories(oldCat)
+			chart.xAxis[0].setCategories(oldCat);
 			chart.redraw();
 		},
 		"json"		
@@ -209,9 +208,8 @@ function drawResTime(){
 		"json"		
 	);
 }
-function initImpactEvent(rrData,resolution,resTimeData){
-	initResRate(rrData,resolution);
-	initResTime(resTimeData);
+function initImpactEvent(){
+	
 	$("#resolutionDraw").click(function(){
 		drawResRate();
 	});
@@ -224,7 +222,7 @@ function initImpactEvent(rrData,resolution,resTimeData){
 		for(var i in chart.series) {
 			chart.series[i].setData([]);
 		}
-	
+		chart.xAxis[0].setCategories([]);
 		chart.redraw();
 	});	
 }

@@ -1,4 +1,4 @@
-
+# -*- coding:utf-8 -*-
 from settings import *
 from flask import session
 import time
@@ -17,8 +17,13 @@ def selectorsInit(db):
     productInfo = ["All",]
     productInfo.extend([x[0] for x in products if x[0] != ""])
     """
-
-    sql = "SELECT DISTINCT(component) FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `component`"
+    # how we distinguish between different teams
+    if session["DS"] == "mozilla":
+        teamDiv = "component"
+    else:
+        teamDiv = "product"
+    
+    sql = "SELECT DISTINCT(" + teamDiv + ") FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `"+ teamDiv + "`"
     cursor.execute(sql)
     products = cursor.fetchall()
     productInfo = ["All",]

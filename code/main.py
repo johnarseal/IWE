@@ -4,13 +4,13 @@ from selectors import *
 from workflow import *
 from impact import *
 from timetrend import *
-import os,json
+import os,json,time
 
 app = Flask(__name__)
 
 # setting secret_key for nginx_uwsgi
 
-app.secret_key = "aijohn122@live.cn"
+app.secret_key = "johnzz@pku.edu.cn"
 
 app.config.update(dict(
     UPLOAD_FOLDER='data'
@@ -21,21 +21,26 @@ def index0():
     session["fse"] = True
     return redirect(url_for('index', db='mozilla'))
  
-
 # db is the database
 @app.route('/iwe/demo/<db>')
 def index(db):
+    
     # DS = dataset
     session["DS"] = db
     session["tmtp"] = "rpt"
     if not session.has_key("fse"):
         session["fse"] = False
+
     selInfo = getSelectors(db)
-    workflowData = getWorkflow(db)
-    resrateData = fetchResRate([])
-    resTimeData = fetchResTime([])
-    ttWFData = fetchttWF([])
-    return render_template('demo.html', selInfo=selInfo,workflowData=workflowData,resrateData=resrateData,resTimeData=resTimeData,ttWFData=ttWFData,project=db)    
+
+    #resrateData = fetchResRate([])
+
+    #resTimeData = fetchResTime([])
+
+    #ttWFData = fetchttWF([])
+
+    return render_template('demo.html', selInfo=selInfo,project=db)    
+
 
 # db is the database
 @app.route('/iwe/about', methods=["GET"])

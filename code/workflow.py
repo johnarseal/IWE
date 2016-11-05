@@ -58,27 +58,6 @@ def processWFdata(rawD):
             break    
 
     return rtData
-
-    
-def workflowInit(db):
-    cursor = conDB()
-    if cursor == None:
-        return None
-        
-    # fetch the data from db and transform it into list
-    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
-    cursor.execute(sql)
-    rawD = cursor.fetchall()
-    rtData = processWFdata(rawD)
-    
-    return rtData
-    
-
-# get the data from selectors, first try session, if not cached then try database    
-def getWorkflow(db):
-        
-    workflowD = workflowInit(db)
-    return workflowD
     
 def fetchWorkflow(selectors):
     
@@ -94,4 +73,30 @@ def fetchWorkflow(selectors):
     else:
         return processWFdata(rawD)
     
+
+"""
+def workflowInit(db):
+    cursor = conDB()
+    if cursor == None:
+        return None
+        
+    # fetch the data from db and transform it into list
+    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
     
+    t1 = time.clock()
+    cursor.execute(sql)
+    rawD = cursor.fetchall()
+    t2 = time.clock()
+    
+    print "time spent on querying sql:" + str(t2-t1)
+    rtData = processWFdata(rawD)
+    
+    return rtData
+    
+
+# get the data from selectors, first try session, if not cached then try database    
+def getWorkflow(db):
+        
+    workflowD = workflowInit(db)
+    return workflowD
+"""    

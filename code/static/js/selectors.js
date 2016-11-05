@@ -87,7 +87,6 @@ function initSelectorEvent(){
 	$(".sel-inputDate").change(function(){
 		var field = $(this).attr("id");
 		selectors[field] = $(this).val();
-		console.log(selectors);
 	});
 	$(".allInputDate").click(function(){
 		if($(this).prop("checked")){
@@ -102,7 +101,6 @@ function initSelectorEvent(){
 				selectors[field] = $(this).val();
 			});			
 		}
-		console.log(selectors);
 	});
 	
 }

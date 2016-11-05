@@ -303,11 +303,8 @@
 <script>
 var selectors = {};
 var dateRange = {{ selInfo.dateRange|tojson|safe }};
-var wfData = {{ workflowData|tojson|safe }};
-var resrateData = {{ resrateData|tojson|safe }};
 var resolution = {{ selInfo.resolutions|tojson|safe }};
-var resTimeData = {{ resTimeData|tojson|safe }};
-var timeTotalData = {{ ttWFData|tojson|safe }};
+
 var svgWidth = parseInt($("#svg-wrap").css("width")) - parseInt($("#svg-wrap").css("padding-left")) - parseInt($("#svg-wrap").css("padding-right"));
 var svgHeight = parseInt($("#svg-wrap").css("height")) - parseInt($("#svg-wrap").css("padding-bottom")) - parseInt($("#svg-wrap").css("padding-top"));
 
@@ -318,11 +315,44 @@ var svgWorkFlowAttr = {"width":svgWidth,"height":svgHeight,"paddingV":20,"paddin
 var height = parseInt($("#timeTotalChart").css("width")) * 4 / 5;
 $("#timeTotalChart").css("height",height + "px");
 
+
+$.get(
+	"/iwe/api/workflow",
+	function(wfData){
+		drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");		
+	},
+	"json"
+);
+
+$.get(
+	"/iwe/api/resrate",
+	function(resrateData){
+		initResRate(resrateData,resolution);
+	},
+	"json"
+);
+
+$.get(
+	"/iwe/api/restime",
+	function(resTimeData){
+		initResTime(resTimeData);
+	},
+	"json"
+);
+
+$.get(
+	"/iwe/api/timetrend/wf",
+	function(timeTotalData){
+		timeTrendInit(timeTotalData);
+	},
+	"json"
+);
+
+
+
 initSelectorEvent();
 initWorkflowEvent();
-drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");
-initImpactEvent(resrateData,resolution,resTimeData);
-timeTrendInit(timeTotalData);
+initImpactEvent();
 initTimeTrendEvent();
 
 
