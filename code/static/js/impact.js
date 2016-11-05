@@ -2,67 +2,67 @@ function initResTime(data){
 	var chartHeight = (parseInt($('#fix-time-wrap').css("width")) * 0.7) + "px";
 	$('#fix-time-wrap').css("height",chartHeight);
 	$('#fix-time-wrap').highcharts({
-			chart:{type:"line"},
+		chart:{type:"line"},
+		title: {
+			text:null,
+			margin:0
+		},
+		yAxis: {
 			title: {
-				text:null,
-				margin:0
-			},
-			yAxis: {
-				title: {
-					enabled:false
-				},
-				labels: {
-					formatter: function() {
-						return ((this.value) * 100) + "%";
-					}
-				},
-				tickInterval:0.1,
-				max:1,
-				plotLines:[{
-					color: '#FF0000',
-					value: 0.9,
-					width: 2,
-					label:{
-						text:"90%",
-						x:-5
-					}
-				}]
-			},
-			xAxis:{
-				title: {
-					text: 'days',
-					align: 'low',
-					margin:0,
-					offset:20
-				}
-			},
-			tooltip:{
-				formatter:function(){
-					var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in<br/>'+ this.x + 'days ';
-					return s;
-				},
-				crosshairs: [true]
-			},
-			credits: {
 				enabled:false
 			},
-			series: [{data:data,name:"All"}],
-			legend: {
-				labelFormatter: function () {
-					var text = this.name,
-					formatted = text.length > 25 ? text.substring(0, 25) + '...' : text;
-
-                    return '<div class="js-ellipse" style="max-width:50px; overflow:hidden" title="' + text + '">' + formatted + '</div>';
-				},
-				useHTML:true
+			labels: {
+				formatter: function() {
+					return ((this.value) * 100) + "%";
+				}
+			},
+			tickInterval:0.1,
+			max:1,
+			plotLines:[{
+				color: '#FF0000',
+				value: 0.9,
+				width: 2,
+				label:{
+					text:"90%",
+					x:-5
+				}
+			}]
+		},
+		xAxis:{
+			title: {
+				text: 'days',
+				align: 'low',
+				margin:0,
+				offset:20
 			}
+		},
+		tooltip:{
+			formatter:function(){
+				var s = '<b>' + this.y*100 + '%</b> Bugs Get Resolved in<br/>'+ this.x + 'days ';
+				return s;
+			},
+			crosshairs: [true]
+		},
+		credits: {
+			enabled:false
+		},
+		series: [{data:data,name:"All"}],
+		legend: {
+			labelFormatter: function () {
+				var text = this.name,
+				formatted = text.length > 25 ? text.substring(0, 25) + '...' : text;
+
+				return '<div class="js-ellipse" style="max-width:50px; overflow:hidden" title="' + text + '">' + formatted + '</div>';
+			},
+			useHTML:true
+		}
 	});
 }
 
 function initResRate(rrData,resolution){
 
 	chartHeight = (parseInt($('#res-rate-wrap').css("width")) * 0.8) + "px";
-	$('#res-rate-wrap').css("height",chartHeight)
+	$('#res-rate-wrap').css("height",chartHeight);
 	
 	// process the data
 	var totalNum = 0;
@@ -223,6 +223,13 @@ function initImpactEvent(){
 			chart.series[i].setData([]);
 		}
 		chart.xAxis[0].setCategories([]);
+		chart.redraw();
+	});
+	$("#resolveTimeClear").click(function(){
+		var chart = $("#fix-time-wrap").highcharts();           
+		while(chart.series.length) {
+            chart.series[0].remove();
+        }
 		chart.redraw();
 	});	
 }

@@ -1,4 +1,4 @@
-
+from flask import session
 
 def buildSQL(selectors,keys=("bug_severity","component","priority","product","resolution","transition","startswith[]","includes[]","createMin","createMax","resolveMin","resolveMax")):
     if selectors == None:
