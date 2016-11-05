@@ -18,7 +18,6 @@ app.config.update(dict(
 
 @app.route('/iwe/demo', methods=["GET"])
 def index0():
-    session["fse"] = True
     return redirect(url_for('index', db='mozilla'))
  
 # db is the database
@@ -28,9 +27,7 @@ def index(db):
     # DS = dataset
     session["DS"] = db
     session["tmtp"] = "rpt"
-    if not session.has_key("fse"):
-        session["fse"] = False
-
+    
     selInfo = getSelectors(db)
 
     return render_template('demo.html', selInfo=selInfo,project=db)    
@@ -39,11 +36,7 @@ def index(db):
 # db is the database
 @app.route('/iwe/about', methods=["GET"])
 def about():
-    # DS = dataset
-    if session["fse"] == True:
-        return render_template('about.html',project=session["DS"])
-    else:
-        return render_template('about0.html',project=session["DS"])
+    return render_template('about.html',project=session["DS"])
 
 @app.route('/iwe/screen_cast', methods=["GET"])
 def screen_cast():
