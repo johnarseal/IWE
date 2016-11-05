@@ -33,12 +33,6 @@ def index(db):
 
     selInfo = getSelectors(db)
 
-    #resrateData = fetchResRate([])
-
-    #resTimeData = fetchResTime([])
-
-    #ttWFData = fetchttWF([])
-
     return render_template('demo.html', selInfo=selInfo,project=db)    
 
 

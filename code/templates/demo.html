@@ -188,7 +188,14 @@
 	   <div class="panel-body" style="padding:5px">
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-4">Products</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option>{{ product }}</option>{% endfor %}</select></div>
+					<div class="sel-hdr col-md-4">
+					<!--  we use components in Mozilla and Products in GNOME to distinguish between different development teams  -->
+					{% if session.DS=="gnome" %}
+						Products
+					{% else %}
+						Components
+					{% endif %}
+					</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option>{{ product }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
 			<div class="selector-wrap">
