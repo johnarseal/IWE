@@ -81,7 +81,6 @@ def fetchttResRate(selectors):
 
     
 def fetchttResTime(selectors):
-
     thistime = "ts0"
     if session["tmtp"] == "rslt":
         thistime = "resolve_time"   
@@ -92,26 +91,39 @@ def fetchttResTime(selectors):
     sql = "SELECT UNIX_TIMESTAMP(DATE_FORMAT("+thistime+",'%Y-%m-%d')),UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) FROM " + TD[session["DS"]]["statustran"]
     conSql = buildSQL(selectors)
     if conSql != None:
-        sql += conSql + " AND resolve_time IS NOT NULL"
-    else:
-        sql += " WHERE resolve_time IS NOT NULL"
-    sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP("+thistime+")"
+        sql += conSql
+        
+    sql += " ORDER BY UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0)"
+    print sql
     cursor.execute(sql)
     rawD = list(cursor.fetchall())
     rawDict = {}
     divisor = 24 * 3600
+    """
+        UNIX_TIMESTAMP(resolve_time)-UNIX_TIMESTAMP(ts0) is ORDER from small to large
+        with None values in the front
+        nullPosDict record the last None value within a day
+    """
+    nullPosDict = {}
     for row in rawD:
-        days = row[1] / divisor
+        if row[1] != None:
+            days = row[1] / divisor
+        else:
+            days = None
         if row[0] not in rawDict:
             rawDict[row[0]] = [days]
         else:
             rawDict[row[0]].append(days)
-
+        if row[1] != None and row[0] not in nullPosDict:
+            nullPosDict[row[0]] = len(rawDict[row[0]])
             
     retD = []
     for ts in rawDict:
         tsNum = len(rawDict[ts])
-        retD.append([ts*1000,rawDict[ts][int(tsNum*0.9)]])
+        if ts not in nullPosDict or (nullPosDict[ts] - 1) > tsNum * 0.1:
+            continue
+        tmpPos = min(tsNum-1,nullPosDict[ts] - 1 + int(tsNum*0.9))
+        retD.append([ts*1000,rawDict[ts][tmpPos]])
     retD.sort(lambda x,y:cmp(x[0],y[0]))
     
     return retD
