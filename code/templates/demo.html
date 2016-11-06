@@ -262,7 +262,7 @@
 	<div class="panel-heading" style="background-color: #EFFEEF; padding:1px">
 	<div class="row" style="margin:0px"><div style="text-align:right" class="col-md-6"><h3 style="margin:8px auto">Workflow</h3></div><div style="margin-top:3px; padding:5px;text-align:right" class="col-md-6"><button id="workflowTT" type="button" class="my-btn btn btn-info timeTrendBtn">Time Trend</button><button type="button" id="wfRedraw" style="background-color:#00868B"class="my-btn btn btn-primary">Redraw</button><button type="button" id="wf-sel" class="my-btn btn btn-success">Select</button><button type="button" id="wf-cancel" class="my-btn btn btn-default">Cancel</button></div></div>
 	</div>
-	<div id="svg-wrap" oncontextmenu="return false;"></div>
+	<div id="svg-wrap" style="background-image:url({{url_for('static', filename='img/loading.gif')}})" oncontextmenu="return false;"></div>
 	</div>
 	</div>
 	</div></div>
@@ -330,7 +330,8 @@ $("#timeTotalChart").css("height",height + "px");
 $.get(
 	"/iwe/api/workflow",
 	function(wfData){
-		drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");		
+		$("#svg-wrap").css("background-image","");
+		drawWorkFlow(wfData,svgWorkFlowAttr,"#svg-wrap");	
 	},
 	"json"
 );
