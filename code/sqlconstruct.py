@@ -41,16 +41,6 @@ def buildSQL(selectors,keys=("bug_severity","component","priority","product","re
                     conSql += "priority != '--' AND "
                 else:
                     conSql += "priority = '" + selectors[key] + "' AND "
-                
-            # for temporary test
-            elif key == "product":
-                # how we distinguish between different teams
-                if session["DS"] == "mozilla":
-                    teamDiv = "component"
-                else:
-                    teamDiv = "product"
-                conSql += teamDiv + " = '" + selectors[key] + "' AND "
-            # temporary test ends
             
             elif key != "includes[]" and key != "startswith[]":
                 conSql += key + " = '" + selectors[key] + "' AND "

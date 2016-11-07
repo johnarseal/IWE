@@ -61,42 +61,38 @@ def processWFdata(rawD):
     
 def fetchWorkflow(selectors):
     
-    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
-    conSql = buildSQL(selectors)
-    if conSql != None:
-        sql += conSql
-    cursor = conDB()
-    cursor.execute(sql)
-    rawD = cursor.fetchall()
+    if len(selectors) == 0:
+        rawD = fetchInitWF()
+    else:    
+        sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
+        conSql = buildSQL(selectors)
+        if conSql != None:
+            sql += conSql
+        cursor = conDB()
+        cursor.execute(sql)
+        rawD = cursor.fetchall()
     if len(rawD) == 0:
         return None
     else:
         return processWFdata(rawD)
-    
 
-"""
-def workflowInit(db):
-    cursor = conDB()
-    if cursor == None:
-        return None
-        
-    # fetch the data from db and transform it into list
-    sql = "SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
+# this is to optimize the initial time spent on fetching workflow data
+def fetchInitWF():
+    tbName = session["DS"] + "_wfinit_cache"
+    sql = "SHOW TABLES LIKE '" + tbName + "'"
+    conn = getDBCon()
+    cursor = conn.cursor()
     
-    t1 = time.clock()
+    # see whether the cache table exists
+    if cursor.execute(sql) == 0:
+        # if not exists, build the cache table
+        newTBSql = "CREATE TABLE " + tbName + " AS SELECT transition, " + sqlTS + " FROM " + TD[session["DS"]]["statustran"]
+        cursor.execute(newTBSql)
+        conn.commit()
+
+    sql = "SELECT * FROM " + tbName
     cursor.execute(sql)
-    rawD = cursor.fetchall()
-    t2 = time.clock()
+    return cursor.fetchall()
     
-    print "time spent on querying sql:" + str(t2-t1)
-    rtData = processWFdata(rawD)
     
-    return rtData
     
-
-# get the data from selectors, first try session, if not cached then try database    
-def getWorkflow(db):
-        
-    workflowD = workflowInit(db)
-    return workflowD
-"""    

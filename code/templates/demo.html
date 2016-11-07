@@ -189,16 +189,21 @@
 	   <div class="panel-body" style="padding:5px">
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
-					<div class="sel-hdr col-md-4">
-					<!--  we use components in Mozilla and Products in GNOME to distinguish between different development teams  -->
-					{% if session.DS=="gnome" %}
-						Products
-					{% else %}
-						Components
-					{% endif %}
+					<div class="sel-hdr col-md-4">		
+					Products
 					</div><div class="sel-selection col-md-8"><select id="sel-product" class="sel-option">{% for product in selInfo.products %}<option>{{ product }}</option>{% endfor %}</select></div>
 				</div>
 			</div>
+			{% if session.DS=="mozilla" %}
+			<div class="selector-wrap">
+				<div class="sel-inner-wrap row" style="margin:0px">
+					<div class="sel-hdr col-md-4">
+					<!--  we use components in Mozilla and Products in GNOME to distinguish between different development teams  -->
+					Components
+					</div><div class="sel-selection col-md-8"><select id="sel-component" class="sel-option">{% for component in selInfo.components %}<option>{{ component }}</option>{% endfor %}</select></div>
+				</div>
+			</div>
+			{% endif %}
 			<div class="selector-wrap">
 				<div class="sel-inner-wrap row" style="margin:0px">
 					<div class="sel-hdr col-md-4">Resolution</div><div class="sel-selection col-md-8"><select id="sel-resolution" class="sel-option">{% for resolution in selInfo.resolutions %}<option>{{ resolution }}</option>{% endfor %}</select></div>

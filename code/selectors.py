@@ -4,38 +4,36 @@ from flask import session
 import time
 
 def selectorsInit(db):
+    selInfo = {}
     
     cursor = conDB()
     if cursor == None:
         return None
     
     # fetch product
-    """
-    sql = "SELECT `name` FROM " + TD[session["DS"]]["products"] + " ORDER BY `name`"
-    cursor.execute(sql)
-    products = cursor.fetchall()
-    productInfo = ["All",]
-    productInfo.extend([x[0] for x in products if x[0] != ""])
-    """
-    # how we distinguish between different teams
-    if session["DS"] == "mozilla":
-        teamDiv = "component"
-    else:
-        teamDiv = "product"
-    
-    sql = "SELECT DISTINCT(" + teamDiv + ") FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `"+ teamDiv + "`"
+    sql = "SELECT DISTINCT(product) FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `product`"
     cursor.execute(sql)
     products = cursor.fetchall()
     productInfo = ["All",]
     productInfo.extend([x[0].encode('utf-8').decode('utf-8') for x in products if x[0] != ""])
+    selInfo["products"] = productInfo
     
-    
+    # in Mozilla we have to add component
+    if session["DS"] == "mozilla":
+        sql = "SELECT DISTINCT(component) FROM " + TD[session["DS"]]["statustran"] + " ORDER BY `component`"
+        cursor.execute(sql)
+        components = cursor.fetchall()
+        compInfo = ["All",]
+        compInfo.extend([x[0].encode('utf-8').decode('utf-8') for x in components if x[0] != ""])
+        selInfo["components"] = compInfo
+        
     # fetch resolution
     sql = "SELECT DISTINCT(resolution) FROM " + TD[session["DS"]]["statustran"]
     cursor.execute(sql)
     resolution = cursor.fetchall()
     resInfo = ["All",]
     resInfo.extend([x[0] for x in resolution if x[0] != ""])
+    selInfo["resolutions"] = resInfo
     
     # fetch severity
     sql = "SELECT DISTINCT(bug_severity) FROM " + TD[session["DS"]]["statustran"]
@@ -43,6 +41,7 @@ def selectorsInit(db):
     severity = cursor.fetchall()
     sevInfo = ["All",]
     sevInfo.extend([x[0] for x in severity if x[0] != ""])
+    selInfo["severities"] = sevInfo
     
     # fetch priority
     sql = "SELECT DISTINCT(priority) FROM " + TD[session["DS"]]["statustran"]
@@ -50,6 +49,7 @@ def selectorsInit(db):
     priority = cursor.fetchall()
     priorInfo = ["All","Tagged"]
     priorInfo.extend([x[0] for x in priority if x[0] != ""])
+    selInfo["priorities"] = priorInfo
     
     # status
     rawArr = ("UNCONFIRMED","NEW","ASSIGNED","REOPENED","RESOLVED","VERIFIED","NEEDINFO")
@@ -60,7 +60,8 @@ def selectorsInit(db):
             statusInfo.append([rawArr[i],rawArr[i+1]])
         else:
             statusInfo.append([rawArr[i],None])
-            
+    selInfo["statusInfo"] = statusInfo
+    
     # mindate,maxdate
     sql = """
     SELECT DATE_FORMAT(MIN(ts0),"%Y-%m-%d"),DATE_FORMAT(MAX(ts0),"%Y-%m-%d"),DATE_FORMAT(MIN(resolve_time),"%Y-%m-%d"),DATE_FORMAT(MAX(resolve_time),"%Y-%m-%d") FROM 
@@ -69,8 +70,9 @@ def selectorsInit(db):
     cursor.execute(sql)
     rawD = cursor.fetchall()[0]
     dateRange = {"createRange":[rawD[0],rawD[1]],"resolveRange":[rawD[2],rawD[3]]}
+    selInfo["dateRange"] = dateRange
     
-    return {"products":productInfo, "resolutions":resInfo, "severities":sevInfo, "priorities":priorInfo, "statusInfo":statusInfo, "dateRange":dateRange}
+    return selInfo
 
 
 # get the data from selectors, first try session, if not cached then try database    
