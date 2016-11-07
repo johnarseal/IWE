@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # setting secret_key for nginx_uwsgi
 
-app.secret_key = "johnzz@pku.edu.cn"
+app.secret_key = "aijohn122@live.cn"
 
 app.config.update(dict(
     UPLOAD_FOLDER='data'
@@ -36,21 +36,21 @@ def index(db):
 
 @app.route('/iwe/about', methods=["GET"])
 def about():
-    return render_template('about.html',project=session["DS"])
+    return render_template('about.html')
 
 @app.route('/iwe/tutorial', methods=["GET"])
 def tutorial():
-    return render_template('tutorial.html',project=session["DS"])
+    return render_template('tutorial.html')
 
 @app.route('/iwe/screen_cast', methods=["GET"])
 def screen_cast():
     # DS = dataset
-    return render_template('screen_cast.html',project=session["DS"])
+    return render_template('screen_cast.html')
 
 @app.route('/iwe/dataset', methods=["GET"])
 def dataset():
     # DS = dataset
-    return render_template('dataset.html',project=session["DS"])
+    return render_template('dataset.html')
 
 @app.route('/iwe/download/<path:fname>', methods=["GET","POST"])
 def download(fname):
