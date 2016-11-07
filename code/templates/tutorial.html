@@ -1,0 +1,96 @@
+{% extends "header.html" %}
+{% block body %}
+
+<link href="{{url_for('static', filename='css/simple-sidebar.css')}}" rel="stylesheet" />
+<style>
+{% block css %}
+h1 {
+    padding-bottom: 0.3em;
+    font-size: 2.5em;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    padding-bottom: 0.1em;
+    font-size: 1.8em;
+    border-bottom: 1px solid #eee;
+}
+p{
+	font-size: 1.2em;
+}
+{% endblock %}
+</style>
+<div id="wrapper" style="margin-top:20px">
+	<div id="sidebar-wrapper" style="margin-top:30px">
+		<ul class="sidebar-nav">
+			<li class="sidebar-brand">
+			<a href="#">
+				IWE Tutorial
+			</a>
+			</li>
+			<li>
+				<a href="#overview">Overview</a>
+			</li>
+			<li>
+				<a href="#details">Details</a>
+			</li>
+			<li>
+				<a href="#usage-example">Usage Example</a>
+			</li>
+		</ul>
+	</div>
+	<div id="page-content-wrapper" style="padding-left:3%">
+		<h1><a href="#overview" name="overview" id="overview">Overview</a></h1>
+		<p>The design of IWE follows a straightforward SELECT->DISPLAY interface model</p>
+		<img style="max-width:650px" src="{{url_for('static', filename='img/overview.bmp')}}" />
+		<p>The <b>Selectors Panel</b> on the left filters issues for the display of <b>Workflow</b>, <b>Investigations</b> and <b>Time Trend</b></p>
+		<p>The <b>Workflow</b> view in the middle provides further selection. Click on the green <b>Select</b> button on the top-right, it filters issues together with Selectors panel</p>
+		<p>Click on the light-blue<b>Time Trend</b> buttons, metrics of issues will be visualized along the time axis
+			<br>
+			<ul style="font-size:1.2em">
+				<li>The button on the <b>Workflow View</b> visualizes the time trend of <b>Number</b> of issues</li>
+				<li>The button on the <b>Resolution View</b> visualizes the time trend of <b>Fix Rate</b> of issues</li>
+				<li>The button on the <b>Resolve Time View</b> visualizes the <b>Resolve Time</b> of most issues (here we use 90% as a representative) over time</li>
+			</ul>
+		</p>
+		<h1><a href="#details" name="details" id="details">Details</a></h1>
+		<h2>Workflow</h2>
+		<p>The image below visualizes the status transition of issues in Mozilla</p>
+		<img style="max-width:400px" src="{{url_for('static', filename='img/workflow.png')}}" />
+		<p>In the tree-like graph, the edge and radius of nodes indicate the <b>number of issues</b> that went through this transition</p>
+		<p>The length of edge indicates the <b>median time</b> spent on this transition</p>
+		<p>The sub-nodes are <b>ordered by the number of issues</b>. The node on the left is always the biggest, indicating the status that most issues went through</p>
+		<p>Different transitions are merged when the time spent on it are similar. Otherwise they are separated. 
+		<br>
+		For example, in the figure above, we have transition 
+		<b>UNCONF->NEW->RESOLVED (tr1)</b> and transition <b>UNCONF->NEW->RESOLVED->VERIFIED (tr2)</b>. The time spent on <b>UNCONF->NEW</b> in tr1 and tr2 are similar (20% is the threshold), so the status <b>NEW</b> in tr1 and tr2 are merged (we considered them a same workflow). 
+		But from <b>NEW</b> to <b>RESOLVED</b>, the time spent on this transition in tr1 and tr2 is of huge difference. Therefore status <b>NEW</b> has two sub-nodes <b>RESOLVED</b>
+		</p>
+		<h2>Investigations</h2>
+		<img style="width:300px" src="{{url_for('static', filename='img/resolution.png')}}" />
+		<img style="width:300px" src="{{url_for('static', filename='img/resolve time.png')}}" />
+		<p>
+			The <b>Resolution View</b> and <b>Resolve Time View</b> provides function of comparison.
+			<br>
+			Click on <b>Draw</b>, it will only add a single bar (or line). Click <b>Clear</b> to clear all the bars.
+		</p>
+		<h2>Time Trend</h2>
+		<img style="width:600px" src="{{url_for('static', filename='img/time trend.png')}}" />
+		<p>
+			The x-Axis of the time trend view can either be the report time or the resolve time of the issues.
+			<br>
+			The anomaly of the black line in the figure above shows that Mozilla resolved (batch-closed) nearly 10k issues in a week in October, 2005
+		</p>
+		<h1><a href="#usage-example"  name="usage-example" id="usage-example">Usage Example</a></h1>
+		<h2>Self-Triage Authority</h2>
+		<p>Here is an example on using IWE to explore policies in GNOME community.
+		<img style="max-width:600px" src="{{url_for('static', filename='img/self-triage.png')}}" />
+		<p>
+			<span style="color:#5bc0de">Blue Line: Total Issues</span><br>
+			Black Line: Issues Starting with status NEW<br>
+			<span style="color:rgb(144, 237, 125)">Green Line: Fix Rate of Issues starting with NEW</span><br>
+			<span style="font-size:1.3em">What We Learn</span><br>
+			GNOME once confined the authority to directly report a NEW issue. <br>After the confinement, the FIXED RATE of self-traiged issues increased, indicating their quality improved
+		</p>
+	</div>
+</div>
+{% endblock %}

@@ -32,11 +32,15 @@ def index(db):
 
     return render_template('demo.html', selInfo=selInfo,project=db)    
 
+    
 
-# db is the database
 @app.route('/iwe/about', methods=["GET"])
 def about():
     return render_template('about.html',project=session["DS"])
+
+@app.route('/iwe/tutorial', methods=["GET"])
+def tutorial():
+    return render_template('tutorial.html',project=session["DS"])
 
 @app.route('/iwe/screen_cast', methods=["GET"])
 def screen_cast():
