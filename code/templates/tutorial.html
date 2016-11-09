@@ -96,6 +96,27 @@ p{
 			<span style="font-size:1.3em">What We Learn</span><br>
 			GNOME once confined the authority to directly report a NEW issue. <br>After the confinement, the FIXED RATE of self-traiged issues increased, indicating their quality improved
 		</p>
+		<h2>Responsiveness on UNCONFIRMED issues</h2>
+		<p>The figure below illustrates the transition of all issues in Mozilla.</p>
+		<img style="max-width:600px" src="{{url_for('static', filename='img/mozilla-transition.jpg')}}" />
+		<p>
+			The transition UNCONFIRMED->NEW->RESOLVED <b>(tr1)</b> takes extremely long time. While the triage process is quite efficient, it takes over 100 days to fix a triagd NEW issue.
+			<br>
+			Compared to the resolve time on self-triaged (starting with status NEW) issues, this is very inefficient.
+			<br>
+			We guess it's because the outsider-report issues need assigner to fix, while the self-triaged issues are mostly resolved by the reporter himself.
+		</p>
+		<p>
+			But when visualizing the time trend of the responsivness, we observe the efficiency has obviously improved.
+			Showing that the community has been focusing on this problem.
+			<br>
+			In the figures below, the first one shows how the resolve time of the issues that follows <b>tr1</b> decreased.
+			<br>
+			The second one shows the resolve time of <b>tr1</b> issus being reported after 2008 (green line), compared to the resolve time of total issues (black line)
+		</p>
+		<img style="max-width:600px" src="{{url_for('static', filename='img/mozilla_restime_improve2.png')}}" />
+		<br>
+		<img style="max-width:200px" src="{{url_for('static', filename='img/mozilla_restime_improve.png')}}" />
 	</div>
 </div>
 {% endblock %}
