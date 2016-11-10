@@ -86,16 +86,13 @@ p{
 			The anomaly of the black line in the figure above shows that Mozilla resolved (batch-closed) nearly 10k issues in a week in October, 2005
 		</p>
 		<h1><a href="#usage-example"  name="usage-example" id="usage-example">Usage Example</a></h1>
-		<h2>Self-Triage Authority</h2>
-		<p>Here is an example on using IWE to explore policies in GNOME community.</p>
-		<img style="max-width:500px" src="{{url_for('static', filename='img/self-triage.png')}}" />
-		<p>
-			<span style="color:#5bc0de">Blue Line: Total Issues</span><br>
-			Black Line: Issues Starting with status NEW<br>
-			<span style="color:rgb(144, 237, 125)">Green Line: Fix Rate of Issues starting with NEW</span><br>
-			<span style="font-size:1.3em">What We Learn</span><br>
-			GNOME once confined the authority to directly report a NEW issue. <br>After the confinement, the FIXED RATE of self-traiged issues increased, indicating their quality improved
-		</p>
+		<h2>practice on prioritization</h2>
+        The Awesome Search Team in Mozilla uses tag priority to tag issues with different urgency.
+        (see <a target="_blank" href="http://dbaron.org/log/20090120-bug-priorities">document</a> )
+        The figures below show the fix rate and resolve time of the issues with different level of priority tag.
+        <img style="width:600px" src="{{url_for('static', filename='img/mozilla-transition.jpg')}}" />
+        
+        
 		<h2>Responsiveness on UNCONFIRMED issues</h2>
 		<p>The figure below illustrates the transition of all issues in Mozilla.</p>
 		<img style="max-width:600px" src="{{url_for('static', filename='img/mozilla-transition.jpg')}}" />
@@ -110,9 +107,9 @@ p{
 			But when visualizing the time trend of the responsivness, we observe the efficiency has obviously improved.
 			Showing that the community has been focusing on this problem.
 			<br>
-			In the figures below, the first one shows how the resolve time of the issues that follows <b>tr1</b> decreased.
+			In the figures below, the first one shows that the resolve time of the issues following <b>tr1</b> decreased (black line).
 			<br>
-			The second one shows the resolve time of <b>tr1</b> issus being reported after 2008 (green line), compared to the resolve time of total issues (black line)
+			The second one illustrates the resolve time of <b>tr1</b> issus reported after 2008 (green line), compared to the resolve time of total tr1 issues (black line)
 		</p>
 		<img style="max-width:800px" src="{{url_for('static', filename='img/mozilla_restime_improve2.png')}}" />
 		<br>
